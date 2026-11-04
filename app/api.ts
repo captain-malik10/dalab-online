@@ -1,13 +1,7 @@
-import { API_BASE } from '~/config/api';
-const getToken = () => {
-  if (window.location.pathname.startsWith('/store')) {
-    return localStorage.getItem('vendor_token') || localStorage.getItem('token');
-  }
-  return localStorage.getItem('token') || localStorage.getItem('vendor_token');
-};
+import { API_BASE, getTokenForUrl } from '~/config/api';
 
 export const apiClient = async (url: string, options: RequestInit = {}) => {
-  const token = getToken();
+  const token = getTokenForUrl(url);
   const headers = new Headers(options.headers);
 
   if (!(options.body instanceof FormData)) {

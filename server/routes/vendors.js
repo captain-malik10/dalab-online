@@ -2,14 +2,18 @@ import express from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import db from '../config/db.js';
-import authenticateToken from '../middleware/auth.js';
+import authenticateToken, { requireVendor } from '../middleware/auth.js';
 import multer from 'multer';
 import imagekit, { isImageKitConfigured } from '../config/imagekit.js';
 
 const router = express.Router();
 
 const storage = multer.memoryStorage();
-const upload = multer({ storage: storage });
+const upload = multer({
+  storage: storage,
+  limits: { fileSize: 5 * 1024 * 1024 },
+  fileFilter: (req, file, cb) => cb(null, file.mimetype.startsWith('image/') || file.mimetype === 'application/pdf'),
+});
 
 const vendorUpload = upload.fields([
   { name: 'logo', maxCount: 1 },
@@ -183,7 +187,7 @@ router.post('/login', async (req, res) => {
       return res.status(401).json({ error: 'Invalid credentials' });
     }
 
-    const token = jwt.sign({ id: vendor.id, role: 'vendor' }, process.env.JWT_SECRET, {
+    const token = jwt.sign({ id: vendor.id, role: 'vendor', type: 'vendor' }, process.env.JWT_SECRET, {
       expiresIn: '1h',
     });
 
@@ -194,7 +198,7 @@ router.post('/login', async (req, res) => {
   }
 });
 
-router.get('/me', authenticateToken, async (req, res) => {
+router.get('/me', requireVendor, async (req, res) => {
   try {
     const vendorId = req.user.id;
     const [vendors] = await db.query('SELECT * FROM Vendors WHERE id = ?', [vendorId]);
@@ -208,7 +212,7 @@ router.get('/me', authenticateToken, async (req, res) => {
   }
 });
 
-router.get('/products', authenticateToken, async (req, res) => {
+router.get('/products', requireVendor, async (req, res) => {
   try {
     const vendorId = req.user.id;
     const sql = `
@@ -225,7 +229,7 @@ router.get('/products', authenticateToken, async (req, res) => {
   }
 });
 
-router.post('/products', authenticateToken, productUpload, async (req, res) => {
+router.post('/products', requireVendor, productUpload, async (req, res) => {
   const vendorId = req.user.id;
   const { category_id, name, price, description, isFeatured, stock } = req.body;
 
@@ -272,7 +276,7 @@ router.post('/products', authenticateToken, productUpload, async (req, res) => {
   }
 });
 
-router.put('/products/:id', authenticateToken, productUpload, async (req, res) => {
+router.put('/products/:id', requireVendor, productUpload, async (req, res) => {
   const vendorId = req.user.id;
   const productId = req.params.id;
   const { category_id, name, price, description, isFeatured, stock, existingImageUrls } = req.body;
@@ -328,7 +332,7 @@ router.put('/products/:id', authenticateToken, productUpload, async (req, res) =
   }
 });
 
-router.delete('/products/:id', authenticateToken, async (req, res) => {
+router.delete('/products/:id', requireVendor, async (req, res) => {
   try {
     const vendorId = req.user.id;
     const { id: productId } = req.params;
@@ -351,7 +355,7 @@ router.delete('/products/:id', authenticateToken, async (req, res) => {
   }
 });
 
-router.get('/products/:id', authenticateToken, async (req, res) => {
+router.get('/products/:id', requireVendor, async (req, res) => {
   try {
     const vendorId = req.user.id;
     const { id: productId } = req.params;
@@ -382,7 +386,7 @@ router.get('/products/:id', authenticateToken, async (req, res) => {
   }
 });
 
-router.get('/orders', authenticateToken, async (req, res) => {
+router.get('/orders', requireVendor, async (req, res) => {
   try {
     const vendorId = req.user.id;
 
@@ -412,7 +416,7 @@ router.get('/orders', authenticateToken, async (req, res) => {
   }
 });
 
-router.get('/orders/:id', authenticateToken, async (req, res) => {
+router.get('/orders/:id', requireVendor, async (req, res) => {
   try {
     const vendorId = req.user.id;
     const { id: orderId } = req.params;
@@ -466,7 +470,7 @@ router.get('/orders/:id', authenticateToken, async (req, res) => {
   }
 });
 
-router.put('/me', authenticateToken, async (req, res) => {
+router.put('/me', requireVendor, async (req, res) => {
   try {
     const vendorId = req.user.id;
     const { store_name, description, country, city, district, logo_url, license_url } = req.body;
@@ -524,7 +528,7 @@ router.put('/me', authenticateToken, async (req, res) => {
   }
 });
 
-router.get('/dashboard', authenticateToken, async (req, res) => {
+router.get('/dashboard', requireVendor, async (req, res) => {
   try {
     const vendorId = req.user.id;
 

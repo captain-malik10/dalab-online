@@ -6,10 +6,20 @@ import db from '../config/db.js';
 const router = express.Router();
 
 router.post('/register', async (req, res) => {
-  const { name, email, password, phone, role } = req.body;
+  const { name, email, password, phone } = req.body;
+  // Public sign-up always creates a customer; roles are only changed by an admin.
+  const role = 'customer';
 
-  if (!name || !email || !password || !role) {
-    return res.status(400).json({ error: 'Please provide name, email, password, and role' });
+  if (!name || !email || !password) {
+    return res.status(400).json({ error: 'Please provide name, email, and password' });
+  }
+
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    return res.status(400).json({ error: 'Invalid email format' });
+  }
+
+  if (String(password).length < 6) {
+    return res.status(400).json({ error: 'Password must be at least 6 characters' });
   }
 
   try {
@@ -52,7 +62,7 @@ router.post('/login', async (req, res) => {
       return res.status(401).json({ error: 'Invalid email or password' });
     }
 
-    const token = jwt.sign({ id: user.id, role: user.role }, process.env.JWT_SECRET, {
+    const token = jwt.sign({ id: user.id, role: user.role, type: 'user' }, process.env.JWT_SECRET, {
       expiresIn: '8h',
     });
 

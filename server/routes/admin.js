@@ -661,7 +661,6 @@ router.get('/products', async (req, res) => {
       JOIN Vendors v ON p.vendor_id = v.id
       ORDER BY p.id DESC
     `);
-    console.log('Products being sent to frontend:', products);
     res.json(products);
   } catch (err) {
     console.error('Error fetching all products for admin:', err);

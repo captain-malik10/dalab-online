@@ -1,10 +1,12 @@
 import express from 'express';
 import db from '../config/db.js';
+import bcrypt from 'bcryptjs';
 import authenticateToken from '../middleware/auth.js';
+import isAdmin from '../middleware/isAdmin.js';
 
 const router = express.Router();
 
-router.get('/', authenticateToken, async (req, res) => {
+router.get('/', authenticateToken, isAdmin, async (req, res) => {
   try {
     const [results] = await db.query('SELECT id, name, email, phone, role FROM Users');
     res.json(results);
@@ -46,12 +48,21 @@ router.delete('/me', authenticateToken, async (req, res) => {
 
 router.put('/me', authenticateToken, async (req, res) => {
   const userId = req.user.id;
-  const allowedFields = ['name', 'phone', 'email', 'password', 'role'];
+  // Role is never user-editable; passwords are hashed before saving.
+  const allowedFields = ['name', 'phone', 'email', 'password'];
   const fieldsToUpdate = [];
   const values = [];
 
   for (const key of allowedFields) {
     if (req.body[key] !== undefined) {
+      if (key === 'password') {
+        if (String(req.body.password).length < 6) {
+          return res.status(400).json({ error: 'Password must be at least 6 characters' });
+        }
+        fieldsToUpdate.push('password = ?');
+        values.push(await bcrypt.hash(String(req.body.password), 10));
+        continue;
+      }
       fieldsToUpdate.push(`${key} = ?`);
       values.push(req.body[key]);
     }

@@ -1,12 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { API_BASE } from '~/config/api';
-
-const getToken = () => {
-  if (typeof window !== 'undefined') {
-    return localStorage.getItem('token') || localStorage.getItem('vendor_token');
-  }
-  return null;
-};
+import { API_BASE, getTokenForUrl } from '~/config/api';
 
 const useApi = <T>(url: string, options: RequestInit = {}) => {
   const [data, setData] = useState<T | null>(null);
@@ -21,7 +14,7 @@ const useApi = <T>(url: string, options: RequestInit = {}) => {
 
     try {
       const parsedOptions = JSON.parse(stringifiedOptions);
-      const token = getToken();
+      const token = getTokenForUrl(url);
 
       // Skip API call for guest users on protected endpoints
       if (!token && (url.includes('/cart') || url.includes('/wishlist') || url.includes('/user'))) {

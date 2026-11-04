@@ -4,6 +4,15 @@ import nodemailer from 'nodemailer';
 
 const router = express.Router();
 
+// Escape user input before inserting it into HTML emails
+const escapeHtml = (value) =>
+  String(value)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+
 // Configure email transporter
 const transporter = nodemailer.createTransport({
   service: process.env.EMAIL_SERVICE || 'gmail',
@@ -50,12 +59,12 @@ router.post('/store-contact', async (req, res) => {
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
           <h2 style="color: #333;">New Contact Message</h2>
-          <p><strong>From:</strong> ${senderName}</p>
-          <p><strong>Email:</strong> <a href="mailto:${senderEmail}">${senderEmail}</a></p>
-          <p><strong>Store:</strong> ${vendor.store_name}</p>
+          <p><strong>From:</strong> ${escapeHtml(senderName)}</p>
+          <p><strong>Email:</strong> <a href="mailto:${escapeHtml(senderEmail)}">${escapeHtml(senderEmail)}</a></p>
+          <p><strong>Store:</strong> ${escapeHtml(vendor.store_name)}</p>
           <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;">
           <h3 style="color: #555;">Message:</h3>
-          <p style="background-color: #f9f9f9; padding: 15px; border-radius: 5px; white-space: pre-wrap;">${message}</p>
+          <p style="background-color: #f9f9f9; padding: 15px; border-radius: 5px; white-space: pre-wrap;">${escapeHtml(message)}</p>
         </div>
       `,
       replyTo: senderEmail, // So the vendor can reply directly
@@ -87,7 +96,6 @@ router.post('/store-contact', async (req, res) => {
     console.error('Error sending contact email:', error);
     res.status(500).json({
       error: 'Failed to send contact message',
-      details: error.message,
     });
   }
 });
@@ -127,11 +135,11 @@ router.post('/admin-contact', async (req, res) => {
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
           <h2 style="color: #333;">New Contact Message from Website</h2>
-          <p><strong>From:</strong> ${senderName}</p>
-          <p><strong>Email:</strong> <a href="mailto:${senderEmail}">${senderEmail}</a></p>
+          <p><strong>From:</strong> ${escapeHtml(senderName)}</p>
+          <p><strong>Email:</strong> <a href="mailto:${escapeHtml(senderEmail)}">${escapeHtml(senderEmail)}</a></p>
           <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;">
           <h3 style="color: #555;">Message:</h3>
-          <p style="background-color: #f9f9f9; padding: 15px; border-radius: 5px; white-space: pre-wrap;">${message}</p>
+          <p style="background-color: #f9f9f9; padding: 15px; border-radius: 5px; white-space: pre-wrap;">${escapeHtml(message)}</p>
         </div>
       `,
       replyTo: senderEmail,
@@ -162,7 +170,6 @@ router.post('/admin-contact', async (req, res) => {
     console.error('Error sending contact email:', error);
     res.status(500).json({
       error: 'Failed to send contact message',
-      details: error.message,
     });
   }
 });

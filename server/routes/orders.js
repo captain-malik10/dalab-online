@@ -4,91 +4,95 @@ import auth from '../middleware/auth.js';
 
 const router = express.Router();
 
-// Helper function to get cart items for order creation
-const getCartItems = async (customerId) => {
-  const [cart] = await db.query('SELECT id FROM Carts WHERE customer_id = ?', [customerId]);
+// Helper function to get cart items for order creation.
+// Runs on the given connection; rows are locked (FOR UPDATE) so stock can't change mid-order.
+const getCartItems = async (connection, customerId) => {
+  const [cart] = await connection.query('SELECT id FROM Carts WHERE customer_id = ?', [customerId]);
   if (!cart || cart.length === 0) {
-    return [];
+    return { cartId: null, items: [] };
   }
 
-  const [items] = await db.query(
+  const [items] = await connection.query(
     `SELECT 
       ci.product_id, 
       ci.quantity, 
       p.price,
+      p.stock,
       p.name as product_name,
       p.vendor_id,
       v.store_name as vendor_name
     FROM Cart_Items ci
     JOIN Products p ON ci.product_id = p.id
     JOIN Vendors v ON p.vendor_id = v.id
-    WHERE ci.cart_id = ?`,
+    WHERE ci.cart_id = ?
+    FOR UPDATE`,
     [cart[0].id],
   );
 
-  return items;
+  return { cartId: cart[0].id, items };
 };
 
 // Create a new order from cart
 router.post('/', auth, async (req, res) => {
+  const customerId = req.user.id;
+  const { shipping_address } = req.body;
+
+  if (!shipping_address || !String(shipping_address).trim()) {
+    return res.status(400).json({ message: 'Shipping address is required' });
+  }
+
+  // All statements of the transaction must run on one dedicated connection.
+  const connection = await db.getConnection();
   try {
-    const customerId = req.user.id;
-    const { shipping_address } = req.body;
+    await connection.beginTransaction();
 
-    if (!shipping_address) {
-      return res.status(400).json({ message: 'Shipping address is required' });
-    }
-
-    // Get cart items
-    const cartItems = await getCartItems(customerId);
+    const { cartId, items: cartItems } = await getCartItems(connection, customerId);
 
     if (cartItems.length === 0) {
+      await connection.rollback();
       return res.status(400).json({ message: 'Cart is empty' });
     }
 
-    // Calculate total
-    const total = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
-
-    // Start transaction
-    await db.query('START TRANSACTION');
-
-    try {
-      // Create order
-      const [orderResult] = await db.query(
-        "INSERT INTO Orders (customer_id, total, shipping_address, status, payment_status) VALUES (?, ?, ?, 'pending', 'pending')",
-        [customerId, total, shipping_address],
-      );
-
-      const orderId = orderResult.insertId;
-
-      // Create order items
-      for (const item of cartItems) {
-        await db.query(
-          'INSERT INTO Order_Items (order_id, product_id, quantity, price) VALUES (?, ?, ?, ?)',
-          [orderId, item.product_id, item.quantity, item.price],
-        );
-      }
-
-      // Clear cart
-      const [cart] = await db.query('SELECT id FROM Carts WHERE customer_id = ?', [customerId]);
-      if (cart && cart.length > 0) {
-        await db.query('DELETE FROM Cart_Items WHERE cart_id = ?', [cart[0].id]);
-      }
-
-      await db.query('COMMIT');
-
-      res.status(201).json({
-        message: 'Order created successfully',
-        orderId: orderId,
-        total: total,
-      });
-    } catch (error) {
-      await db.query('ROLLBACK');
-      throw error;
+    // Stock check before creating the order
+    const outOfStock = cartItems.filter((item) => item.quantity > item.stock);
+    if (outOfStock.length > 0) {
+      await connection.rollback();
+      const details = outOfStock
+        .map((item) => `${item.product_name} (only ${item.stock} left)`)
+        .join(', ');
+      return res.status(409).json({ message: `Not enough stock for: ${details}` });
     }
+
+    const total = cartItems.reduce((sum, item) => sum + Number(item.price) * item.quantity, 0);
+
+    const [orderResult] = await connection.query(
+      "INSERT INTO Orders (customer_id, total, shipping_address, status, payment_status) VALUES (?, ?, ?, 'pending', 'pending')",
+      [customerId, total, shipping_address],
+    );
+    const orderId = orderResult.insertId;
+
+    for (const item of cartItems) {
+      await connection.query(
+        'INSERT INTO Order_Items (order_id, product_id, quantity, price) VALUES (?, ?, ?, ?)',
+        [orderId, item.product_id, item.quantity, item.price],
+      );
+    }
+
+    await connection.query('DELETE FROM Cart_Items WHERE cart_id = ?', [cartId]);
+
+    await connection.commit();
+
+    res.status(201).json({
+      message: 'Order created successfully',
+      orderId: orderId,
+      total: total,
+    });
   } catch (error) {
-    console.error(error);
+    await connection.rollback();
+    console.error('Error creating order:', error);
     res.status(500).json({ message: 'Server error' });
+  } finally {
+    connection.release();
   }
 });
 
