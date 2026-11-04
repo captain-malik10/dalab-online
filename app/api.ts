@@ -1,3 +1,4 @@
+import { API_BASE } from '~/config/api';
 const getToken = () => {
   if (window.location.pathname.startsWith('/store')) {
     return localStorage.getItem('vendor_token') || localStorage.getItem('token');
@@ -17,7 +18,7 @@ export const apiClient = async (url: string, options: RequestInit = {}) => {
     headers.set('Authorization', `Bearer ${token}`);
   }
 
-  const response = await fetch(`http://localhost:3001/api${url}`, { ...options, headers });
+  const response = await fetch(`${API_BASE}${url}`, { ...options, headers });
 
   if (!response.ok) {
     if (response.status === 401) {

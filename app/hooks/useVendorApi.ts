@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { API_BASE } from '~/config/api';
 
 const getVendorToken = () => localStorage.getItem('vendor_token');
 
@@ -21,7 +22,7 @@ const useVendorApi = <T>(url: string, options: RequestInit = {}) => {
         ...(token && { Authorization: `Bearer ${token}` }),
       };
 
-      const response = await fetch(`http://localhost:3001/api${url}`, {
+      const response = await fetch(`${API_BASE}${url}`, {
         ...parsedOptions,
         headers,
       });

@@ -7,6 +7,7 @@ import { useVendorPublic } from '~/hooks/useVendorPublic';
 import ProductCard from '~/components/ProductCard';
 import ProductCardSkeleton from '~/components/ProductCardSkeleton';
 import { useProducts } from '~/hooks/useProducts';
+import { API_BASE } from '~/config/api';
 import { useUser } from '~/hooks/useUser'; // Import useUser hook
 
 export default function StoreDetails() {
@@ -94,7 +95,7 @@ export default function StoreDetails() {
     setSubmitStatus(null);
 
     try {
-      const response = await fetch('http://localhost:3001/api/contact/store-contact', {
+      const response = await fetch(`${API_BASE}/contact/store-contact`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

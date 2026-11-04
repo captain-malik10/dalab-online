@@ -1,4 +1,5 @@
 import { useState, useCallback, useEffect } from 'react';
+import { API_BASE } from '~/config/api';
 
 // Define the type for a cart item (same as useCart)
 export interface GuestCartItem {
@@ -152,7 +153,7 @@ export const useGuestCart = () => {
     try {
       // Add each item to the authenticated cart
       for (const item of cartItems) {
-        await fetch('http://localhost:3001/api/cart/items', {
+        await fetch(`${API_BASE}/cart/items`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

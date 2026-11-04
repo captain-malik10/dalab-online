@@ -4,6 +4,7 @@ import { Mail, Send, User, MessageSquare, AlertCircle, CheckCircle } from 'lucid
 import Header from '~/components/Header';
 import Footer from '~/components/Footer';
 import { useUser } from '~/hooks/useUser';
+import { API_BASE } from '~/config/api';
 
 export default function ContactPage() {
   const { user } = useUser();
@@ -29,7 +30,7 @@ export default function ContactPage() {
     setErrorMessage('');
 
     try {
-      const response = await fetch('http://localhost:3001/api/contact/admin-contact', {
+      const response = await fetch(`${API_BASE}/contact/admin-contact`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

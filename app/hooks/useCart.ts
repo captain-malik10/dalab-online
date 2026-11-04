@@ -1,5 +1,6 @@
 import { useState, useCallback } from 'react';
 import useApi from './useApi';
+import { API_BASE } from '~/config/api';
 
 // Define the type for a cart item
 export interface CartItem {
@@ -38,7 +39,7 @@ export const useCart = () => {
         throw new Error('Please log in to manage your cart');
       }
 
-      const response = await fetch(`http://localhost:3001/api/cart${url}`, {
+      const response = await fetch(`${API_BASE}/cart${url}`, {
         ...options,
         headers: {
           'Content-Type': 'application/json',

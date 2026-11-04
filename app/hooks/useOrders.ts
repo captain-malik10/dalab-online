@@ -1,4 +1,5 @@
 import { useState, useCallback } from 'react';
+import { API_BASE } from '~/config/api';
 
 interface OrderDetails {
   shipping_address: string;
@@ -34,7 +35,7 @@ export function useOrders() {
         return null;
       }
 
-      const response = await fetch('http://localhost:3001/api/users/me', {
+      const response = await fetch(`${API_BASE}/users/me`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -67,7 +68,7 @@ export function useOrders() {
         throw new Error('Please log in to place an order');
       }
 
-      const orderResponse = await fetch('http://localhost:3001/api/orders', {
+      const orderResponse = await fetch(`${API_BASE}/orders`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -102,7 +103,7 @@ export function useOrders() {
       }
 
       const paymentResponse = await fetch(
-        `http://localhost:3001/api/orders/${paymentDetails.orderId}/payment`,
+        `${API_BASE}/orders/${paymentDetails.orderId}/payment`,
         {
           method: 'POST',
           headers: {

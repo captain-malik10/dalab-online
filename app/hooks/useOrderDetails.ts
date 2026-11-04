@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { API_BASE } from '~/config/api';
 
 interface OrderItem {
   id: number;
@@ -54,7 +55,7 @@ export function useOrderDetails(orderId: string): UseOrderDetailsResult {
         return;
       }
 
-      const response = await fetch(`http://localhost:3001/api/orders/${orderId}`, {
+      const response = await fetch(`${API_BASE}/orders/${orderId}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },

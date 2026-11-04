@@ -475,9 +475,9 @@ router.get('/vendors', async (req, res) => {
         v.isVerified, 
         COALESCE(SUM(p.amount), 0) as total_income
       FROM 
-        vendors v
+        Vendors v
       LEFT JOIN 
-        payouts p ON v.id = p.vendor_id
+        Payouts p ON v.id = p.vendor_id
       GROUP BY
         v.id
       ORDER BY 
@@ -496,7 +496,7 @@ router.get('/vendors/:id', async (req, res) => {
     const [vendorRows] = await db.query(
       `
       SELECT v.*, u.id as owner_id, u.name as owner_name, u.email as owner_email, u.phone as owner_phone, u.role as owner_role
-      FROM vendors v
+      FROM Vendors v
       JOIN Users u ON v.user_id = u.id
       WHERE v.id = ?
     `,
@@ -567,7 +567,7 @@ router.put('/vendors/:id/status', async (req, res) => {
   try {
     const isVerified = status === 'approved';
 
-    const [result] = await db.query('UPDATE vendors SET status = ?, isVerified = ? WHERE id = ?', [
+    const [result] = await db.query('UPDATE Vendors SET status = ?, isVerified = ? WHERE id = ?', [
       status,
       isVerified,
       vendorId,
@@ -626,7 +626,7 @@ router.put('/vendors/:id', async (req, res) => {
 
   values.push(vendorId);
 
-  const sql = `UPDATE vendors SET ${fieldsToUpdate.join(', ')} WHERE id = ?`;
+  const sql = `UPDATE Vendors SET ${fieldsToUpdate.join(', ')} WHERE id = ?`;
 
   try {
     const [result] = await db.query(sql, values);
@@ -643,7 +643,7 @@ router.put('/vendors/:id', async (req, res) => {
 router.delete('/vendors/:id', async (req, res) => {
   const { id: vendorId } = req.params;
   try {
-    const [result] = await db.query('DELETE FROM vendors WHERE id = ?', [vendorId]);
+    const [result] = await db.query('DELETE FROM Vendors WHERE id = ?', [vendorId]);
     if (result.affectedRows === 0) {
       return res.status(404).json({ error: 'Vendor not found.' });
     }
@@ -658,7 +658,7 @@ router.get('/products', async (req, res) => {
     const [products] = await db.query(`
       SELECT p.*, v.store_name
       FROM Products p
-      JOIN vendors v ON p.vendor_id = v.id
+      JOIN Vendors v ON p.vendor_id = v.id
       ORDER BY p.id DESC
     `);
     console.log('Products being sent to frontend:', products);
@@ -805,7 +805,7 @@ router.get('/dashboard', async (req, res) => {
     }
 
     const [userCount] = await db.query("SELECT COUNT(*) as total FROM Users WHERE role != 'admin'");
-    const [vendorCount] = await db.query('SELECT COUNT(*) as total FROM vendors');
+    const [vendorCount] = await db.query('SELECT COUNT(*) as total FROM Vendors');
     const [productCount] = await db.query('SELECT COUNT(*) as total FROM Products');
     const [pendingOrderCount] = await db.query(
       "SELECT COUNT(*) as total FROM Orders WHERE status = 'pending'",
@@ -826,7 +826,7 @@ router.get('/dashboard', async (req, res) => {
       'SELECT COUNT(*) as total FROM Users WHERE created_at >= DATE_SUB(NOW(), INTERVAL 30 DAY)',
     );
     const [recentVendors] = await db.query(
-      'SELECT COUNT(*) as total FROM vendors WHERE created_at >= DATE_SUB(NOW(), INTERVAL 30 DAY)',
+      'SELECT COUNT(*) as total FROM Vendors WHERE created_at >= DATE_SUB(NOW(), INTERVAL 30 DAY)',
     );
     const [recentOrders] = await db.query('SELECT * FROM Orders ORDER BY created_at DESC LIMIT 5');
 
@@ -848,7 +848,7 @@ router.get('/dashboard', async (req, res) => {
     const [topVendors] = await db.query(`
       SELECT v.store_name, SUM(p.amount) as total_payout
       FROM Payouts p
-      JOIN vendors v ON p.vendor_id = v.id
+      JOIN Vendors v ON p.vendor_id = v.id
       WHERE p.status = 'completed'
       GROUP BY v.id
       ORDER BY total_payout DESC

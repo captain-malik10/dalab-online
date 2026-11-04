@@ -1,6 +1,6 @@
 import express from 'express';
 import multer from 'multer';
-import imagekit from '../config/imagekit.js';
+import imagekit, { isImageKitConfigured } from '../config/imagekit.js';
 
 const router = express.Router();
 
@@ -9,6 +9,12 @@ const upload = multer({ storage: multer.memoryStorage() });
 
 // The upload route. 'file' is the name of the form field.
 router.post('/', upload.single('file'), async (req, res) => {
+  if (!isImageKitConfigured) {
+    return res
+      .status(503)
+      .json({ message: 'Image upload is not configured on this server. Use an image URL instead.' });
+  }
+
   if (!req.file) {
     return res.status(400).json({ message: 'No file uploaded.' });
   }
@@ -24,7 +30,7 @@ router.post('/', upload.single('file'), async (req, res) => {
     res.status(200).json({ url: result.url, fileId: result.fileId });
   } catch (error) {
     console.error('ImageKit upload error:', error);
-    res.status(500).json({ message: 'Error uploading file to ImageKit.', error: error.message });
+    res.status(500).json({ message: 'Error uploading file to ImageKit.' });
   }
 });
 

@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { API_BASE } from '~/config/api';
 
 const getToken = () => {
   if (typeof window !== 'undefined') {
@@ -40,7 +41,7 @@ const useApi = <T>(url: string, options: RequestInit = {}) => {
         ...(token && { Authorization: `Bearer ${token}` }),
       };
 
-      const response = await fetch(`http://localhost:3001/api${url}`, {
+      const response = await fetch(`${API_BASE}${url}`, {
         ...parsedOptions,
         headers,
       });

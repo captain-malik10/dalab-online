@@ -1,9 +1,10 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router';
 import type { User } from '../types';
+import { API_BASE } from '~/config/api';
 
 const apiFetch = async (url: string, options: RequestInit = {}) => {
-  const response = await fetch(`http://localhost:3001/api${url}`, options);
+  const response = await fetch(`${API_BASE}${url}`, options);
 
   if (!response.ok) {
     console.error(`HTTP error! status: ${response.status}`);

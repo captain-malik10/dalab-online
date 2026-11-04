@@ -23,7 +23,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
-const port = 3001;
+const port = process.env.PORT || 3001;
 
 app.use(cors());
 app.use(express.json());
@@ -44,13 +44,23 @@ app.use('/api/reviews', reviewRoutes);
 app.use('/api/cart', cartRoutes);
 app.use('/api/wishlist', wishlistRoutes);
 app.use('/api/search', searchRoutes);
-
-// Serve static files from the React app build directory
-app.use(express.static(path.join(__dirname, 'dist')));
-
-// The "catchall" handler: for any request that doesn't
 app.use('/api/orders', ordersRoutes);
 app.use('/api/contact', contactRoutes);
+
+// Unknown API routes return JSON 404 instead of the SPA page
+app.use('/api', (req, res) => {
+  res.status(404).json({ error: 'Not found' });
+});
+
+// Serve the built React SPA
+const clientDir = path.join(__dirname, 'build', 'client');
+app.use(express.static(clientDir));
+
+// SPA fallback: any other GET returns index.html so client-side routing works
+app.use((req, res, next) => {
+  if (req.method !== 'GET') return next();
+  res.sendFile(path.join(clientDir, 'index.html'));
+});
 
 app.listen(port, () => {
   console.log(`Server is running on http://localhost:${port}`);

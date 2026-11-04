@@ -1,6 +1,7 @@
 import { useState, useCallback } from 'react';
 import useApi from './useApi';
 import { useCart } from './useCart';
+import { API_BASE } from '~/config/api';
 
 // Define the type for a wishlist item
 export interface WishlistItem {
@@ -38,7 +39,7 @@ export const useWishlist = () => {
     setUpdateError(null);
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`http://localhost:3001/api/wishlist${url}`, {
+      const response = await fetch(`${API_BASE}/wishlist${url}`, {
         ...options,
         headers: {
           'Content-Type': 'application/json',

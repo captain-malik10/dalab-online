@@ -1,5 +1,6 @@
 import express from 'express';
 import db from '../config/db.js';
+import { parseImageUrls } from '../utils/images.js';
 
 const router = express.Router();
 
@@ -59,14 +60,7 @@ router.get('/', async (req, res) => {
     const [products] = await db.query(query, params);
 
     const formatted = products.map((product) => {
-      let imageUrls = [];
-      if (product.image_urls) {
-        try {
-          imageUrls = JSON.parse(product.image_urls);
-        } catch (e) {
-          imageUrls = [product.image_urls];
-        }
-      }
+      const imageUrls = parseImageUrls(product.image_urls);
       return {
         ...product,
         image_urls: imageUrls,
@@ -129,14 +123,7 @@ router.get('/:id', async (req, res) => {
     }
 
     // Parse image URLs
-    let imageUrls = [];
-    if (product.image_urls) {
-      try {
-        imageUrls = JSON.parse(product.image_urls);
-      } catch (e) {
-        imageUrls = [product.image_urls];
-      }
-    }
+    const imageUrls = parseImageUrls(product.image_urls);
 
     // Get reviews for this product
     const reviewsQuery = `
@@ -181,14 +168,7 @@ router.get('/:id', async (req, res) => {
 
     // Format related products
     const formattedRelated = relatedProducts.map((related) => {
-      let relatedImageUrls = [];
-      if (related.image_urls) {
-        try {
-          relatedImageUrls = JSON.parse(related.image_urls);
-        } catch (e) {
-          relatedImageUrls = [related.image_urls];
-        }
-      }
+      const relatedImageUrls = parseImageUrls(related.image_urls);
       return {
         ...related,
         image_urls: relatedImageUrls,

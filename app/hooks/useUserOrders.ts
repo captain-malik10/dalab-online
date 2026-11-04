@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { API_BASE } from '~/config/api';
 
 interface Order {
   id: number;
@@ -49,7 +50,7 @@ export function useUserOrders(): UseUserOrdersResult {
         return;
       }
 
-      const response = await fetch('http://localhost:3001/api/orders', {
+      const response = await fetch(`${API_BASE}/orders`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -81,7 +82,7 @@ export function useUserOrders(): UseUserOrdersResult {
           return false;
         }
 
-        const response = await fetch(`http://localhost:3001/api/orders/${orderId}`, {
+        const response = await fetch(`${API_BASE}/orders/${orderId}`, {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
@@ -121,7 +122,7 @@ export function useUserOrders(): UseUserOrdersResult {
           return false;
         }
 
-        const response = await fetch(`http://localhost:3001/api/orders/${orderId}`, {
+        const response = await fetch(`${API_BASE}/orders/${orderId}`, {
           method: 'DELETE',
           headers: {
             Authorization: `Bearer ${token}`,
@@ -161,7 +162,7 @@ export function useUserOrders(): UseUserOrdersResult {
           return false;
         }
 
-        const response = await fetch(`http://localhost:3001/api/orders/${orderId}/delivered`, {
+        const response = await fetch(`${API_BASE}/orders/${orderId}/delivered`, {
           method: 'PUT',
           headers: {
             Authorization: `Bearer ${token}`,

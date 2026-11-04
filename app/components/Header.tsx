@@ -133,7 +133,11 @@ const Header: React.FC<HeaderProps> = ({ breadcrumbs }) => {
                               onClick={() => setShowResults(false)}
                             >
                               <img
-                                src={product.image_urls?.[0]?.[0] ?? '/images/placeholder.png'}
+                                src={
+                                  (Array.isArray(product.image_urls?.[0])
+                                    ? product.image_urls?.[0]?.[0]
+                                    : product.image_urls?.[0]) ?? '/images/placeholder.png'
+                                }
                                 alt={product.name}
                                 className="w-10 h-10 object-cover rounded mr-3"
                               />

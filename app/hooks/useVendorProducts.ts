@@ -1,6 +1,7 @@
 import { useState, useCallback } from 'react';
 import type { Product } from '../types';
 import useVendorApi from './useVendorApi';
+import { API_BASE } from '~/config/api';
 
 export const useVendorProducts = () => {
   const { data: products, loading, error, refetch } = useVendorApi<Product[]>('/vendors/products');
@@ -18,7 +19,7 @@ export const useVendorProducts = () => {
       headers.set('Authorization', `Bearer ${token}`);
     }
 
-    const response = await fetch(`http://localhost:3001/api/vendors${url}`, {
+    const response = await fetch(`${API_BASE}/vendors${url}`, {
       ...options,
       headers,
     });

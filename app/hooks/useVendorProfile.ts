@@ -1,6 +1,7 @@
 import { useState, useCallback } from 'react';
 import type { Vendor } from '../types';
 import useVendorApi from './useVendorApi';
+import { API_BASE } from '~/config/api';
 
 export const useVendorProfile = () => {
   const { data: profile, loading, error, refetch } = useVendorApi<Vendor>('/vendors/me');
@@ -13,7 +14,7 @@ export const useVendorProfile = () => {
       setUpdateError(null);
       try {
         const token = localStorage.getItem('vendor_token');
-        const response = await fetch(`http://localhost:3001/api/vendors/me`, {
+        const response = await fetch(`${API_BASE}/vendors/me`, {
           method: 'put',
           headers: {
             'Content-Type': 'application/json',

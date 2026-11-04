@@ -4,7 +4,7 @@ import jwt from 'jsonwebtoken';
 import db from '../config/db.js';
 import authenticateToken from '../middleware/auth.js';
 import multer from 'multer';
-import imagekit from '../config/imagekit.js';
+import imagekit, { isImageKitConfigured } from '../config/imagekit.js';
 
 const router = express.Router();
 
@@ -17,6 +17,40 @@ const vendorUpload = upload.fields([
 ]);
 
 const productUpload = upload.array('images', 10);
+
+// Collect product image URLs: uploaded files (only when ImageKit is configured)
+// plus any URLs pasted into the "imageUrls" field (JSON array or one per line).
+const parsePastedUrls = (raw) => {
+  if (!raw) return [];
+  try {
+    const parsed = JSON.parse(raw);
+    if (Array.isArray(parsed)) return parsed.map(String).map((u) => u.trim()).filter(Boolean);
+  } catch {
+    // not JSON, fall through to line/comma splitting
+  }
+  return String(raw)
+    .split(/[\n,]/)
+    .map((u) => u.trim())
+    .filter(Boolean);
+};
+
+const collectImageUrls = async (req) => {
+  const urls = parsePastedUrls(req.body.imageUrls);
+  if (req.files && req.files.length > 0) {
+    if (!isImageKitConfigured) {
+      const err = new Error('Image upload is not configured on this server. Please paste image URLs instead.');
+      err.status = 400;
+      throw err;
+    }
+    const uploadResults = await Promise.all(
+      req.files.map((file) =>
+        imagekit.upload({ file: file.buffer, fileName: file.originalname, folder: '/products' }),
+      ),
+    );
+    urls.push(...uploadResults.map((result) => result.url));
+  }
+  return urls;
+};
 
 router.post('/register', authenticateToken, async (req, res) => {
   const creatorUserId = req.user.id;
@@ -32,7 +66,7 @@ router.post('/register', authenticateToken, async (req, res) => {
   try {
     await connection.beginTransaction();
 
-    const [existingVendors] = await connection.query('SELECT * FROM vendors WHERE email = ?', [
+    const [existingVendors] = await connection.query('SELECT * FROM Vendors WHERE email = ?', [
       email,
     ]);
     if (existingVendors.length > 0) {
@@ -43,7 +77,7 @@ router.post('/register', authenticateToken, async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const [vendorResult] = await connection.query(
-      'INSERT INTO vendors (user_id, email, password, store_name, description, country, city, district) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+      'INSERT INTO Vendors (user_id, email, password, store_name, description, country, city, district) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
       [creatorUserId, email, hashedPassword, store_name, description, country, city, district],
     );
 
@@ -75,7 +109,7 @@ router.put('/register/uploads/:vendorId', authenticateToken, vendorUpload, async
     await connection.beginTransaction();
 
     const [vendors] = await connection.query(
-      'SELECT user_id, store_name FROM vendors WHERE id = ?',
+      'SELECT user_id, store_name FROM Vendors WHERE id = ?',
       [vendorId],
     );
 
@@ -95,7 +129,7 @@ router.put('/register/uploads/:vendorId', authenticateToken, vendorUpload, async
     let logoUrl = null;
     let licenseUrl = null;
 
-    if (req.files && req.files.logo) {
+    if (isImageKitConfigured && req.files && req.files.logo) {
       const logoUpload = await imagekit.upload({
         file: req.files.logo[0].buffer,
         fileName: `${sanitizedStoreName}-logo`,
@@ -104,7 +138,7 @@ router.put('/register/uploads/:vendorId', authenticateToken, vendorUpload, async
       logoUrl = logoUpload.url;
     }
 
-    if (req.files && req.files.license) {
+    if (isImageKitConfigured && req.files && req.files.license) {
       const licenseUpload = await imagekit.upload({
         file: req.files.license[0].buffer,
         fileName: `${sanitizedStoreName}-license`,
@@ -114,7 +148,7 @@ router.put('/register/uploads/:vendorId', authenticateToken, vendorUpload, async
     }
 
     await connection.query(
-      'UPDATE vendors SET logo_url = ?, license_url = ?, isVerified = false WHERE id = ?',
+      'UPDATE Vendors SET logo_url = ?, license_url = ?, isVerified = false WHERE id = ?',
       [logoUrl, licenseUrl, vendorId],
     );
 
@@ -137,7 +171,7 @@ router.post('/login', async (req, res) => {
   }
 
   try {
-    const [rows] = await db.query('SELECT * FROM vendors WHERE email = ?', [email]);
+    const [rows] = await db.query('SELECT * FROM Vendors WHERE email = ?', [email]);
     const vendor = rows[0];
 
     if (!vendor) {
@@ -163,7 +197,7 @@ router.post('/login', async (req, res) => {
 router.get('/me', authenticateToken, async (req, res) => {
   try {
     const vendorId = req.user.id;
-    const [vendors] = await db.query('SELECT * FROM vendors WHERE id = ?', [vendorId]);
+    const [vendors] = await db.query('SELECT * FROM Vendors WHERE id = ?', [vendorId]);
     if (vendors.length === 0) {
       return res.status(404).json({ error: 'No store found for this vendor ID.' });
     }
@@ -179,7 +213,7 @@ router.get('/products', authenticateToken, async (req, res) => {
     const vendorId = req.user.id;
     const sql = `
       SELECT p.*, c.name as category_name
-      FROM products p
+      FROM Products p
       JOIN Categories c ON p.category_id = c.id
       WHERE p.vendor_id = ?
     `;
@@ -198,23 +232,20 @@ router.post('/products', authenticateToken, productUpload, async (req, res) => {
   if (!name || !price || !category_id || !stock) {
     return res.status(400).json({ error: 'Missing required fields' });
   }
-  if (!req.files || req.files.length === 0) {
-    return res.status(400).json({ error: 'Please upload at least one image' });
+  let imageUrls;
+  try {
+    imageUrls = await collectImageUrls(req);
+  } catch (err) {
+    console.error('Error processing product images:', err);
+    return res.status(err.status || 500).json({ error: err.status ? err.message : 'Image upload failed' });
+  }
+  if (imageUrls.length === 0) {
+    return res.status(400).json({ error: 'Please upload an image or paste at least one image URL' });
   }
 
   const connection = await db.getConnection();
   try {
     await connection.beginTransaction();
-
-    const uploadPromises = req.files.map((file) =>
-      imagekit.upload({
-        file: file.buffer,
-        fileName: file.originalname,
-        folder: '/products',
-      }),
-    );
-    const uploadResults = await Promise.all(uploadPromises);
-    const imageUrls = uploadResults.map((result) => result.url);
 
     const [result] = await connection.query(
       'INSERT INTO Products (vendor_id, category_id, name, price, description, image_urls, isFeatured, stock) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
@@ -260,24 +291,15 @@ router.put('/products/:id', authenticateToken, productUpload, async (req, res) =
       [productId],
     );
     if (productRows.length === 0) {
+      await connection.rollback();
       return res.status(404).json({ error: 'Product not found' });
     }
     if (productRows[0].vendor_id !== vendorId) {
+      await connection.rollback();
       return res.status(403).json({ error: 'Forbidden' });
     }
 
-    let newImageUrls = [];
-    if (req.files && req.files.length > 0) {
-      const uploadPromises = req.files.map((file) =>
-        imagekit.upload({
-          file: file.buffer,
-          fileName: file.originalname,
-          folder: '/products',
-        }),
-      );
-      const uploadResults = await Promise.all(uploadPromises);
-      newImageUrls = uploadResults.map((result) => result.url);
-    }
+    const newImageUrls = await collectImageUrls(req);
 
     const finalImageUrls = [...JSON.parse(existingImageUrls || '[]'), ...newImageUrls];
 
@@ -300,7 +322,7 @@ router.put('/products/:id', authenticateToken, productUpload, async (req, res) =
   } catch (err) {
     await connection.rollback();
     console.error('Error updating product:', err);
-    res.status(500).json({ error: 'Server error' });
+    res.status(err.status || 500).json({ error: err.status ? err.message : 'Server error' });
   } finally {
     connection.release();
   }

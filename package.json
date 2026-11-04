@@ -4,12 +4,13 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "react-router build",
     "server": "nodemon -r dotenv/config server.js",
-    "start": "react-router-serve ./build/server/index.js",
+    "start": "node server.js",
     "typecheck": "react-router typegen && tsc",
     "format": "prettier --write .",
-    "remove-comments": "node remove-jsx-comments.js"
+    "remove-comments": "node remove-jsx-comments.js",
+    "db:setup": "node scripts/db-setup.js"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",

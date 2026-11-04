@@ -28,6 +28,7 @@ export default function ProductModal({
   const [images, setImages] = useState<File[]>([]);
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
   const [existingImageUrls, setExistingImageUrls] = useState<string[]>([]);
+  const [pastedImageUrls, setPastedImageUrls] = useState('');
 
   const { data: categories, error: categoriesError } = useApi<Category[]>('/categories');
   const [loading, setLoading] = useState(false);
@@ -68,6 +69,7 @@ export default function ProductModal({
         setImagePreviews([]);
         setExistingImageUrls([]);
       }
+      setPastedImageUrls('');
       setError(null);
     }
   }, [mode, product, isOpen]);
@@ -127,6 +129,9 @@ export default function ProductModal({
     images.forEach((image) => {
       formData.append('images', image);
     });
+    if (pastedImageUrls.trim()) {
+      formData.append('imageUrls', pastedImageUrls);
+    }
 
     if (mode === 'edit') {
       formData.append('existingImageUrls', JSON.stringify(existingImageUrls));
@@ -294,6 +299,20 @@ export default function ProductModal({
                   />
                 </label>
               </div>
+            </div>
+
+            <div>
+              <label htmlFor="imageUrls" className="block mb-2 text-sm text-gray-900">
+                Or paste image URLs (one per line)
+              </label>
+              <textarea
+                id="imageUrls"
+                value={pastedImageUrls}
+                onChange={(e) => setPastedImageUrls(e.target.value)}
+                rows={2}
+                placeholder="https://example.com/photo.jpg"
+                className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+              ></textarea>
             </div>
 
             {(existingImageUrls.length > 0 || imagePreviews.length > 0) && (

@@ -1,4 +1,5 @@
 import { useState, useCallback } from 'react';
+import { API_BASE } from '~/config/api';
 
 interface Product {
   id: number;
@@ -34,7 +35,7 @@ export function useAdminProducts() {
     setError(null);
     try {
       const token = localStorage.getItem('token');
-      const res = await fetch('http://localhost:3001/api/admin/products', {
+      const res = await fetch(`${API_BASE}/admin/products`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (!res.ok) throw new Error('Failed to fetch products');
@@ -52,7 +53,7 @@ export function useAdminProducts() {
     setError(null);
     try {
       const token = localStorage.getItem('token');
-      const res = await fetch(`http://localhost:3001/api/admin/products/${id}`, {
+      const res = await fetch(`${API_BASE}/admin/products/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (!res.ok) throw new Error('Failed to fetch product details');
@@ -73,7 +74,7 @@ export function useAdminProducts() {
       setError(null);
       try {
         const token = localStorage.getItem('token');
-        const res = await fetch(`http://localhost:3001/api/admin/products/${id}`, {
+        const res = await fetch(`${API_BASE}/admin/products/${id}`, {
           method: 'DELETE',
           headers: { Authorization: `Bearer ${token}` },
         });

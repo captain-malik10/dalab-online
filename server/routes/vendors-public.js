@@ -1,5 +1,6 @@
 import express from 'express';
 import db from '../config/db.js';
+import { parseImageUrls } from '../utils/images.js';
 
 const router = express.Router();
 
@@ -52,14 +53,6 @@ router.get('/', async (req, res) => {
 router.get('/:id', async (req, res) => {
   const { id: vendorId } = req.params;
 
-  const safeParseJSON = (value) => {
-    try {
-      const parsed = JSON.parse(value);
-      return Array.isArray(parsed) ? parsed : [parsed];
-    } catch {
-      return value ? [value] : [];
-    }
-  };
 
   try {
     const [vendorRows] = await db.query(
@@ -138,7 +131,7 @@ router.get('/:id', async (req, res) => {
         name: p.name,
         price: parseFloat(p.price),
         description: p.description,
-        image_urls: safeParseJSON(p.image_urls),
+        image_urls: parseImageUrls(p.image_urls),
         isFeatured: !!p.isFeatured,
         stock: p.stock,
         created_at: p.created_at,

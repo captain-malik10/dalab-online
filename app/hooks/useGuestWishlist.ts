@@ -1,4 +1,5 @@
 import { useState, useCallback, useEffect } from 'react';
+import { API_BASE } from '~/config/api';
 
 // Define the type for a wishlist item
 export interface GuestWishlistItem {
@@ -95,7 +96,7 @@ export const useGuestWishlist = () => {
 
     try {
       for (const item of wishlistItems) {
-        await fetch('http://localhost:3001/api/wishlist/items', {
+        await fetch(`${API_BASE}/wishlist/items`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

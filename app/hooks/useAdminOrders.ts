@@ -1,4 +1,5 @@
 import { useState, useCallback } from 'react';
+import { API_BASE } from '~/config/api';
 
 interface Customer {
   id: number;
@@ -65,7 +66,7 @@ export function useAdminOrders() {
     setError(null);
     try {
       const token = localStorage.getItem('token');
-      const res = await fetch('http://localhost:3001/api/admin/orders', {
+      const res = await fetch(`${API_BASE}/admin/orders`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (!res.ok) throw new Error('Failed to fetch orders');
@@ -83,7 +84,7 @@ export function useAdminOrders() {
     setError(null);
     try {
       const token = localStorage.getItem('token');
-      const res = await fetch(`http://localhost:3001/api/admin/orders/${orderId}`, {
+      const res = await fetch(`${API_BASE}/admin/orders/${orderId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (!res.ok) throw new Error('Failed to fetch order');
@@ -103,7 +104,7 @@ export function useAdminOrders() {
     setError(null);
     try {
       const token = localStorage.getItem('token');
-      const res = await fetch(`http://localhost:3001/api/admin/orders/${orderId}/approve`, {
+      const res = await fetch(`${API_BASE}/admin/orders/${orderId}/approve`, {
         method: 'PUT',
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -122,7 +123,7 @@ export function useAdminOrders() {
     setError(null);
     try {
       const token = localStorage.getItem('token');
-      const res = await fetch(`http://localhost:3001/api/admin/orders/${orderId}/deny`, {
+      const res = await fetch(`${API_BASE}/admin/orders/${orderId}/deny`, {
         method: 'PUT',
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -141,7 +142,7 @@ export function useAdminOrders() {
     setError(null);
     try {
       const token = localStorage.getItem('token');
-      const res = await fetch(`http://localhost:3001/api/admin/orders/${orderId}/assign-delivery`, {
+      const res = await fetch(`${API_BASE}/admin/orders/${orderId}/assign-delivery`, {
         method: 'POST',
         headers: {
           Authorization: `Bearer ${token}`,
