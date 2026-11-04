@@ -5,7 +5,9 @@ import {
   Outlet,
   Scripts,
   ScrollRestoration,
+  useLocation,
 } from 'react-router';
+import ChatAssistant from './components/ChatAssistant';
 
 import type { Route } from './+types/root';
 import './app.css';
@@ -53,8 +55,21 @@ export function Layout({ children }: { children: React.ReactNode }) {
   );
 }
 
+// Admin panel and seller center pages don't show the shopping assistant.
+const isBackOffice = (pathname: string) =>
+  pathname.startsWith('/admin') ||
+  pathname === '/store' ||
+  pathname === '/store/' ||
+  /^\/store\/[^/]+\/(dashboard|orders|products|settings)/.test(pathname);
+
 export default function App() {
-  return <Outlet />;
+  const { pathname } = useLocation();
+  return (
+    <>
+      <Outlet />
+      {!isBackOffice(pathname) && <ChatAssistant />}
+    </>
+  );
 }
 
 export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {

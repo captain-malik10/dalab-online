@@ -10,7 +10,8 @@
     "typecheck": "react-router typegen && tsc",
     "format": "prettier --write .",
     "remove-comments": "node remove-jsx-comments.js",
-    "db:setup": "node scripts/db-setup.js"
+    "db:setup": "node scripts/db-setup.js",
+    "docs:prompts": "node scripts/export-prompts.js"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",

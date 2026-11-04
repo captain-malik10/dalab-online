@@ -9,22 +9,14 @@ import SimilarProducts from '~/components/product/SimilarProducts';
 import { useProductDetails, type ProductDetailsResponse } from '~/hooks/useProductDetails';
 import type { Product } from '~/types';
 
-import product1 from '~/assets/images/product1.jpg';
-import product2 from '~/assets/images/product2.jpg';
-import product3 from '~/assets/images/product3.jpg';
-import product4 from '~/assets/images/product4.jpg';
-
-// Removed unused skincare images as fallbackSimilarProducts is removed
-// import skincare1 from "~/assets/images/skincare1.jpg";
-// import skincare2 from "~/assets/images/skincare2.avif";
-// import skincare3 from "~/assets/images/skincare3.webp";
-// import skincare4 from "~/assets/images/skincare4.webp";
+import ReviewSummary from '~/components/product/ReviewSummary';
+import { openDalabChat } from '~/components/ChatAssistant';
+import { Sparkles } from 'lucide-react';
 
 function ProductDetailContent({ productDetails }: { productDetails: ProductDetailsResponse }) {
   const { id } = useParams<{ id: string }>();
-  // Fallback images for when API images are not available
-  const fallbackImages = [product1, product2, product3, product4];
-  // Removed fallbackSimilarProducts
+  // Neutral brand placeholder when a product has no images
+  const fallbackImages = ['/favicon.svg'];
 
   // Use API data or fallback to hardcoded data
   // Handle nested array structure from API
@@ -92,7 +84,20 @@ function ProductDetailContent({ productDetails }: { productDetails: ProductDetai
           </section>
 
           <aside className="lg:col-span-4">
-            <div className="sticky top-6">
+            <div className="sticky top-6 space-y-4">
+              <button
+                type="button"
+                onClick={() =>
+                  openDalabChat(
+                    `Tell me about "${productDetails.product.name}" (product #${productDetails.product.id}). Is it a good choice, and what are similar options?`,
+                  )
+                }
+                className="flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-[#4189DD] to-[#255FA6] px-4 py-3 font-bold text-white shadow hover:opacity-95"
+              >
+                <Sparkles size={18} className="text-[#FFB020]" />
+                Ask Dalab AI about this product
+              </button>
+              <ReviewSummary productId={productDetails.product.id} />
               <StoreCard
                 id={productDetails.store.id}
                 name={productDetails.store.name}

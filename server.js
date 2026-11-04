@@ -18,6 +18,7 @@ import wishlistRoutes from './server/routes/wishlist.js';
 import searchRoutes from './server/routes/search.js';
 import ordersRoutes from './server/routes/orders.js';
 import contactRoutes from './server/routes/contact.js';
+import aiRoutes from './server/routes/ai.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -25,8 +26,10 @@ const __dirname = path.dirname(__filename);
 const app = express();
 const port = process.env.PORT || 3001;
 
+// Behind Railway's proxy: use the client IP from X-Forwarded-For (for rate limiting)
+app.set('trust proxy', 1);
 app.use(cors());
-app.use(express.json());
+app.use(express.json({ limit: '100kb' }));
 
 app.get('/api', (req, res) => {
   res.json({ message: 'Server is running successfully' });
@@ -46,6 +49,7 @@ app.use('/api/wishlist', wishlistRoutes);
 app.use('/api/search', searchRoutes);
 app.use('/api/orders', ordersRoutes);
 app.use('/api/contact', contactRoutes);
+app.use('/api/ai', aiRoutes);
 
 // Unknown API routes return JSON 404 instead of the SPA page
 app.use('/api', (req, res) => {

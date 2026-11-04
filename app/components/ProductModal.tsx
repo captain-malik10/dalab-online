@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { X, UploadCloud, Loader2 } from 'lucide-react';
+import { X, UploadCloud, Loader2, Sparkles } from 'lucide-react';
+import { API_BASE } from '~/config/api';
 import useApi from '~/hooks/useApi';
 import type { Product, Category } from '~/types';
 
@@ -32,6 +33,8 @@ export default function ProductModal({
 
   const { data: categories, error: categoriesError } = useApi<Category[]>('/categories');
   const [loading, setLoading] = useState(false);
+  const [generating, setGenerating] = useState(false);
+  const [aiNote, setAiNote] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -70,6 +73,7 @@ export default function ProductModal({
         setExistingImageUrls([]);
       }
       setPastedImageUrls('');
+      setAiNote(null);
       setError(null);
     }
   }, [mode, product, isOpen]);
@@ -109,6 +113,39 @@ export default function ProductModal({
 
   const removeExistingImage = (url: string) => {
     setExistingImageUrls((prev) => prev.filter((u) => u !== url));
+  };
+
+  const handleGenerateDescription = async () => {
+    if (!name.trim()) {
+      setAiNote('Enter a product name first.');
+      return;
+    }
+    setGenerating(true);
+    setAiNote(null);
+    try {
+      const token = localStorage.getItem('vendor_token') || localStorage.getItem('token');
+      const categoryName = categories?.find((c) => String(c.id) === categoryId)?.name || '';
+      const response = await fetch(`${API_BASE}/ai/description`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token && { Authorization: `Bearer ${token}` }),
+        },
+        body: JSON.stringify({ name, category: categoryName, price, notes: description }),
+      });
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(data.error || 'Could not generate a description.');
+      setDescription(data.description);
+      setAiNote(
+        data.source === 'ai'
+          ? 'Written by Dalab AI — review and edit before saving.'
+          : 'AI is unavailable, so a simple template was used — please edit it.',
+      );
+    } catch (err: any) {
+      setAiNote(err.message);
+    } finally {
+      setGenerating(false);
+    }
   };
 
   const handleSubmit = async (event: React.FormEvent) => {
@@ -214,16 +251,33 @@ export default function ProductModal({
             </div>
 
             <div>
-              <label htmlFor="description" className="block mb-2 text-sm text-gray-900">
-                Description
-              </label>
+              <div className="mb-2 flex items-center justify-between gap-2">
+                <label htmlFor="description" className="block text-sm text-gray-900">
+                  Description
+                </label>
+                <button
+                  type="button"
+                  onClick={handleGenerateDescription}
+                  disabled={generating}
+                  className="flex items-center gap-1.5 rounded-lg bg-[#FFB020] px-3 py-1.5 text-xs font-bold text-[#0B1F3A] hover:bg-amber-400 disabled:opacity-60"
+                >
+                  {generating ? (
+                    <Loader2 size={14} className="animate-spin" />
+                  ) : (
+                    <Sparkles size={14} />
+                  )}
+                  {generating ? 'Writing…' : '✨ Generate with AI'}
+                </button>
+              </div>
               <textarea
                 id="description"
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 rows={4}
+                placeholder="Tip: add a few notes (size, colour, features) and press Generate with AI"
                 className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
               ></textarea>
+              {aiNote && <p className="mt-1 text-xs text-[var(--color-muted)]">{aiNote}</p>}
             </div>
 
             <div className="grid grid-cols-2 gap-4">
