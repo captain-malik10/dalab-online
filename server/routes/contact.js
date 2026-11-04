@@ -131,7 +131,7 @@ router.post('/admin-contact', async (req, res) => {
     const mailOptions = {
       from: process.env.EMAIL_USER,
       to: admin.email,
-      subject: `New Contact Message from ${senderName} - Ashal Online Market`,
+      subject: `New Contact Message from ${senderName} - Dalab Online`,
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
           <h2 style="color: #333;">New Contact Message from Website</h2>

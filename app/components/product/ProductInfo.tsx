@@ -203,7 +203,7 @@ export default function ProductInfo({ product, reviews }: ProductInfoProps) {
           disabled={isUpdatingWishlist}
           className={`border py-3 rounded flex items-center justify-center gap-4 font-medium disabled:opacity-50 ${
             isWishlisted
-              ? 'bg-[var(--color-accent)]/20 border-[var(--color-accent)] text-[var(--color-accent)] hover:bg-[var(--color-accent)]/30'
+              ? 'bg-[var(--color-accent)]/20 border-[var(--color-accent)] text-[#9A6400] hover:bg-[var(--color-accent)]/30'
               : 'border-gray-400 text-gray-700 hover:bg-gray-100'
           }`}
         >

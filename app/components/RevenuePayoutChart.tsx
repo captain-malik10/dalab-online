@@ -119,12 +119,12 @@ export default function RevenuePayoutChart() {
     {
       data: chartData.revenue.map((d) => d.y),
       label: 'Revenue',
-      color: '#2e7d32', // Green
+      color: '#16A34A', // Green
     },
     {
       data: chartData.payout.map((d) => d.y),
       label: 'Payout',
-      color: '#d32f2f', // Red
+      color: '#DC2626', // Red
     },
   ];
 

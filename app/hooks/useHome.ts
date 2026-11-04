@@ -21,7 +21,7 @@ export const useHome = () => {
         setCategories(categoriesResponse);
 
         const productsByCategoryPromises = categoriesResponse.map((category: Category) =>
-          apiClient(`/products?categoryName=${category.name}`),
+          apiClient(`/products?categoryName=${encodeURIComponent(category.name)}`),
         );
 
         const productsByCategoryResponses = await Promise.all(productsByCategoryPromises);

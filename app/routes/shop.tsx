@@ -13,6 +13,7 @@ export default function ShopPage() {
   const location = useLocation();
   const searchParams = new URLSearchParams(location.search);
   const initialCategory = searchParams.get('category') || '';
+  const searchQuery = (searchParams.get('q') || '').trim().toLowerCase();
 
   const [viewLayout, setViewLayout] = useState<'grid' | 'list'>('grid');
   const [sortOrder, setSortOrder] = useState<string>('Characteristics');
@@ -59,7 +60,14 @@ export default function ShopPage() {
   const sortedProducts = useMemo(() => {
     if (!products) return [];
 
-    const sorted = [...products];
+    // Free-text search from the hero / ?q= links
+    const sorted = searchQuery
+      ? products.filter((p) =>
+          [p.name, p.description, (p as any).vendor_name, (p as any).category_name]
+            .filter(Boolean)
+            .some((field) => String(field).toLowerCase().includes(searchQuery)),
+        )
+      : [...products];
 
     switch (sortOrder) {
       case 'Price: Low to High':
@@ -81,7 +89,7 @@ export default function ShopPage() {
       default:
         return sorted;
     }
-  }, [products, sortOrder]);
+  }, [products, sortOrder, searchQuery]);
 
   // Paginate products
   const paginatedProducts = useMemo(() => {

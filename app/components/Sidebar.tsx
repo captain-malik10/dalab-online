@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link, useLocation, useParams } from 'react-router';
 import { LayoutDashboard, ShoppingCart, Package, Truck, Store, Settings, DollarSign } from 'lucide-react';
-import wordMark from '../assets/images/word-mark.png';
+import Logo from './Logo';
 
 interface Tab {
   name: string;
@@ -59,9 +59,12 @@ const Sidebar: React.FC<SidebarProps> = ({ type }) => {
   return (
     <div className="w-64 bg-gray-50 border-r border-gray-200 flex-col h-screen hidden md:flex">
       <div className="border-b border-gray-200">
-        <Link to={type === 'admin' ? '/admin' : '/store'}>
-          <img src={wordMark} alt="Ashal" className="w-full" />
-        </Link>
+        <div className="px-4 py-5">
+          <Logo to={type === 'admin' ? '/admin' : '/store'} />
+          <p className="mt-1 text-xs font-medium uppercase tracking-wide text-gray-500">
+            {type === 'admin' ? 'Admin panel' : 'Seller center'}
+          </p>
+        </div>
       </div>
       <nav className="flex-1 px-4 py-4 space-y-2">
         {tabs.map((tab) => {

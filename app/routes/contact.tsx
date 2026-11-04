@@ -192,7 +192,7 @@ export default function ContactPage() {
                 <Mail className="w-5 h-5 text-blue-600 mt-1" />
                 <div>
                   <p className="font-medium text-gray-900">Email</p>
-                  <p className="text-sm text-gray-600">admin@ashal.com</p>
+                  <p className="text-sm text-gray-600">support@dalab.test</p>
                 </div>
               </div>
               <div className="flex items-start space-x-3">

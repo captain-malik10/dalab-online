@@ -1,4 +1,4 @@
--- Ashal Online Market — database schema (MySQL 8)
+-- Dalab Online — database schema (MySQL 8)
 -- Runs against the database selected by the connection (no CREATE DATABASE / USE),
 -- so it works on hosted databases such as Railway.
 -- WARNING: this drops and recreates every table. `npm run db:setup` refuses to run

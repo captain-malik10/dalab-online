@@ -8,7 +8,7 @@ export default function CategoryCard({
   image_link?: string;
 }) {
   return (
-    <Link to={`/shop?category=${title}`}>
+    <Link to={`/shop?category=${encodeURIComponent(title ?? "")}`}>
       <div className="relative flex h-[200px] w-[160px] shrink-0 overflow-hidden rounded bg-[var(--color-surface)] shadow-lg select-none cursor-pointer">
         <img
           src={image_link}

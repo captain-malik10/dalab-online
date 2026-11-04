@@ -1,7 +1,6 @@
 import type { Route } from './+types/home';
 import CategoryCard from '~/components/CategoryCard';
 import ProductCard from '~/components/ProductCard';
-import { HorizontalCard } from '~/components/HorizontalCard';
 import HeroGrid from '~/components/HeroGrid';
 import React, { useRef, useState, type MouseEvent } from 'react';
 import Footer from '~/components/Footer';
@@ -11,52 +10,64 @@ import { useHome } from '~/hooks/useHome';
 import ProductCardSkeleton from '~/components/ProductCardSkeleton';
 import CategoryCardSkeleton from '~/components/CategoryCardSkeleton';
 import AuthMessage from '~/components/AuthMessage';
+import { Headphones, ShieldCheck, Smartphone, Truck } from 'lucide-react';
+import { Link } from 'react-router';
 
 import electronic from '~/assets/images/bg-removed/electronic.png';
 import fashion from '~/assets/images/bg-removed/fashion.png';
 import home from '~/assets/images/bg-removed/home.png';
 import sports from '~/assets/images/bg-removed/sports.png';
-import travel from '~/assets/images/bg-removed/travel.png';
 
 const categoriesSeparators = [
   {
     categoryName: 'Electronics',
     description:
-      'Discover the latest in tech and gadgets. From smartphones to smart home devices, we have everything you need to stay connected.',
+      'Laptops, headphones and smart gadgets from trusted Hodan Electronics — with shop warranty and delivery across Mogadishu.',
     imageSrc: electronic,
-    shopLink: '/shop?category=electronics',
-    bgColor: '#4CAF50',
+    shopLink: '/shop?category=Electronics',
+    bgColor: '#4189DD',
   },
   {
     categoryName: 'Fashion',
     description:
-      'Elevate your wardrobe with timeless silhouettes and bold details—curated pieces that blend effortless comfort with modern edge. Discover seasonal must-haves, sustainable staples, and statement accessories to define your signature look.',
+      'From wedding suits to everyday blazers and family outfits — fresh styles from Xamar Fashion House, ready for Eid.',
     imageSrc: fashion,
-    shopLink: '/shop?category=fashion',
-    bgColor: '#2196F3',
+    shopLink: '/shop?category=Fashion',
+    bgColor: '#0B1F3A',
   },
   {
-    categoryName: 'Home',
+    categoryName: 'Home & Kitchen',
     description:
-      'Create a space you love with our collection of home goods. Find furniture, decor, and more to make your house a home.',
+      'Fridges that stay cool through power cuts, washing machines, kettles and cookware from Bakaaro Home & Kitchen.',
     imageSrc: home,
-    shopLink: '/shop?category=home',
-    bgColor: '#FFC107',
+    shopLink: '/shop?category=Home%20%26%20Kitchen',
+    bgColor: '#255FA6',
   },
   {
     categoryName: 'Sports',
     description:
-      "Get in the game with our selection of sports equipment and apparel. Whether you're a pro or just starting out, we have what you need to perform your best.",
+      'Sneakers, footballs and gear for the beach at Lido or the pitch after school. Kaalay ciyaar!',
     imageSrc: sports,
-    shopLink: '/shop?category=sports',
-    bgColor: '#F44336',
+    shopLink: '/shop?category=Sports',
+    bgColor: '#16A34A',
   },
+];
+
+const whyDalab = [
+  { icon: Truck, title: 'Same-day delivery', text: 'Across Mogadishu when you order before 2pm.' },
+  { icon: Smartphone, title: 'EVC Plus & eDahab', text: 'Pay from your phone — no card needed.' },
+  { icon: ShieldCheck, title: 'Trusted local stores', text: 'Every seller is verified by our team.' },
+  { icon: Headphones, title: 'Real people, real help', text: 'Call or message us, Somali or English.' },
 ];
 
 export function meta({}: Route.MetaArgs) {
   return [
-    { title: 'Ashal - Your Marketplace' },
-    { name: 'description', content: 'Welcome to Ashal!' },
+    { title: 'Dalab Online — Ku soo dhawoow!' },
+    {
+      name: 'description',
+      content:
+        "Order from Somalia's best local stores — delivered to your door, paid with EVC Plus or eDahab.",
+    },
   ];
 }
 
@@ -115,46 +126,32 @@ export default function Home() {
       <Header />
       <div className="p-4">
         <HeroGrid />
-        <div className="my-4 mx-auto grid w-full grid-cols-1 gap-4 sm:grid-cols-2">
-          <HorizontalCard
-            title="Discount coupons"
-            description="Take advantage of our Exclusive Sales for Smart and Economical Shopping."
-            linkText="Discover coupons"
-            linkHref="#"
-            imageUrl="https://i.pinimg.com/736x/ef/eb/73/efeb7363561cbf596a0684e25f5fa175.jpg"
-          />
-          <HorizontalCard
-            title="Delivery Everywhere"
-            description="Our Reliable Delivery Service to Ensure Your Purchases Arrive Quickly and Safely."
-            linkText="delivery conditions"
-            linkHref="#"
-            imageUrl="https://i.pinimg.com/736x/c3/30/fb/c330fb0a1e0fd825dbf7cb809a49febe.jpg"
-          />
-          <HorizontalCard
-            title="Secure Payment"
-            description="Discover our Payment Methods for a Worry-Free Shopping Experience."
-            linkText="Discover"
-            linkHref="#"
-            imageUrl="https://i.pinimg.com/736x/8b/61/6d/8b616dd1c4fd5db723133800f1b10bef.jpg"
-          />
-          <HorizontalCard
-            title="24/7 Customer Service"
-            description="Your Satisfaction is our Commitment, Enjoy Personalized Assistance at Every Step."
-            linkText="Get Help"
-            linkHref="#"
-            imageUrl="https://i.pinimg.com/736x/81/d1/d4/81d1d446cf0d896c9eeb7bab7b0711ce.jpg"
-          />
-        </div>
+        <section className="my-6 grid grid-cols-2 gap-3 lg:grid-cols-4">
+          {whyDalab.map(({ icon: Icon, title, text }) => (
+            <div
+              key={title}
+              className="flex items-start gap-3 rounded-2xl border border-[var(--color-border)] bg-white p-4"
+            >
+              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-[#4189DD]">
+                <Icon size={20} />
+              </span>
+              <div>
+                <p className="font-bold">{title}</p>
+                <p className="text-sm text-[var(--color-muted)]">{text}</p>
+              </div>
+            </div>
+          ))}
+        </section>
 
         <div className="flex w-full flex-col gap-2">
           <div className="flex items-center justify-between">
-            <h1 className="text-xl font-bold">Products by category</h1>
-            <a
-              href="#"
-              className="text-sm text-[var(--color-primary)] hover:text-[var(--color-primary-hover)] hover:underline"
+            <h2 className="text-xl font-bold">Shop by category</h2>
+            <Link
+              to="/shop"
+              className="text-sm font-semibold text-[var(--color-primary)] hover:text-[var(--color-primary-hover)] hover:underline"
             >
-              See all categories
-            </a>
+              See all
+            </Link>
           </div>
           <div
             ref={scrollRef}
@@ -182,13 +179,13 @@ export default function Home() {
 
         <div className="mt-6">
           <div className="flex items-center justify-between">
-            <h1 className="text-xl font-bold">Popular products</h1>
-            <a
-              href="#"
-              className="text-sm text-[var(--color-primary)] hover:text-[var(--color-primary-hover)] hover:underline"
+            <h2 className="text-xl font-bold">Popular now in Mogadishu</h2>
+            <Link
+              to="/shop"
+              className="text-sm font-semibold text-[var(--color-primary)] hover:text-[var(--color-primary-hover)] hover:underline"
             >
               See all products
-            </a>
+            </Link>
           </div>
 
           <div className="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">

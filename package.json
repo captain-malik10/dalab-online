@@ -1,5 +1,5 @@
 {
-  "name": "ashal",
+  "name": "dalab-online",
   "private": true,
   "type": "module",
   "scripts": {
@@ -53,5 +53,6 @@
   },
   "engines": {
     "node": ">=20.19"
-  }
+  },
+  "description": "Dalab Online — multi-vendor marketplace for Somalia's local stores"
 }

@@ -1,25 +1,49 @@
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
 @import 'tailwindcss';
 
-/* base variables for light theme */
+/* Dalab Online brand theme.
+   Tailwind's blue scale is remapped to the brand blue so every existing
+   bg-blue-*, text-blue-* and ring-blue-* class follows the brand. */
+@theme {
+  --font-sans: 'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji',
+    'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+
+  --color-blue-50: #eef5fc;
+  --color-blue-100: #d9e8f8;
+  --color-blue-200: #b5d1f1;
+  --color-blue-300: #8bb7e9;
+  --color-blue-400: #64a0e3;
+  --color-blue-500: #4189dd;
+  --color-blue-600: #2f74c8;
+  --color-blue-700: #255fa6;
+  --color-blue-800: #1f4d86;
+  --color-blue-900: #1b406d;
+  --color-blue-950: #0b1f3a;
+
+  --color-brand: #4189dd;
+  --color-ink: #0b1f3a;
+  --color-amber-brand: #ffb020;
+}
+
 :root {
   --font-sans:
-    'Inter', 'Poppins', 'Nunito Sans', 'Outfit', ui-sans-serif, system-ui, sans-serif,
-    'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+    'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji',
+    'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
 
-  --color-primary: #2563eb;
-  --color-primary-hover: #1e40af;
-  --color-secondary: #facc15;
-  --color-accent: #ef4444;
-  --color-success: #10b981;
-  --color-warning: #f59e0b;
-  --color-info: #3b82f6;
-  --color-background: #ffffff;
-  --color-surface: #f9fafb;
-  --color-border: #e5e7eb;
-  --color-muted: #6b7280;
-  --color-dark: #111827;
-  --color-light: #f3f4f6;
+  --color-primary: #4189dd;
+  --color-primary-hover: #2f74c8;
+  --color-secondary: #0b1f3a;
+  --color-accent: #ffb020;
+  --color-accent-hover: #f59e0b;
+  --color-success: #16a34a;
+  --color-error: #dc2626;
+  --color-warning: #ffb020;
+  --color-info: #4189dd;
+  --color-background: #f7f9fc;
+  --color-surface: #ffffff;
+  --color-border: #e3e8ef;
+  --color-muted: #5b6b82;
+  --color-dark: #0b1f3a;
+  --color-light: #eef2f7;
 }
 
 /* apply fonts + color variables; use Tailwind's apply for convenience */

@@ -1,128 +1,96 @@
-// import wordMark from "~/assets/images/word-mark.png";
-import logo from '~/assets/images/logo.png';
+import { Link } from 'react-router';
+import { Clock, MapPin, ShieldCheck, Truck } from 'lucide-react';
+import Logo from './Logo';
+
+const columns = [
+  {
+    title: 'Shop',
+    links: [
+      { label: 'All products', to: '/shop' },
+      { label: 'Electronics', to: '/shop?category=Electronics' },
+      { label: 'Phones & Accessories', to: '/shop?category=Phones %26 Accessories' },
+      { label: 'Fashion', to: '/shop?category=Fashion' },
+      { label: 'Home & Kitchen', to: '/shop?category=Home %26 Kitchen' },
+      { label: 'Beauty', to: '/shop?category=Beauty' },
+    ],
+  },
+  {
+    title: 'My account',
+    links: [
+      { label: 'Sign in', to: '/login' },
+      { label: 'Create account', to: '/register' },
+      { label: 'My orders', to: '/orders' },
+      { label: 'Wishlist', to: '/wishlist' },
+      { label: 'Cart', to: '/cart' },
+    ],
+  },
+  {
+    title: 'Sell & support',
+    links: [
+      { label: 'Open your store', to: '/store' },
+      { label: 'Seller login', to: '/store' },
+      { label: 'Contact us', to: '/contact' },
+    ],
+  },
+];
+
+const promises = [
+  { icon: Truck, text: 'Same-day delivery in Mogadishu' },
+  { icon: ShieldCheck, text: 'Trusted, verified local stores' },
+  { icon: Clock, text: 'Support Sat–Thu, 8am–10pm' },
+];
 
 function Footer() {
   return (
-    <footer className="bg-[var(--color-light)] text-[var(--color-dark)]">
-      <div className="container mx-auto py-12 px-4">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-          <div className="col-span-1">
-            <img src={logo} alt="Ashal" className="h-10 mb-4" />
-            <p className="text-[var(--color-muted)]">Brief description of the marketplace.</p>
-          </div>
-          <div>
-            <h3 className="font-bold mb-4">Navigation</h3>
-            <ul className="space-y-2">
-              <li>
-                <a
-                  href="/categories"
-                  className="text-[var(--color-muted)] hover:text-[var(--color-primary)]"
-                >
-                  Categories
-                </a>
-              </li>
-              <li>
-                <a
-                  href="/products"
-                  className="text-[var(--color-muted)] hover:text-[var(--color-primary)]"
-                >
-                  All articles
-                </a>
-              </li>
-              <li>
-                <a
-                  href="/promotions"
-                  className="text-[var(--color-muted)] hover:text-[var(--color-primary)]"
-                >
-                  Promotions
-                </a>
-              </li>
-              <li>
-                <a
-                  href="/deals"
-                  className="text-[var(--color-muted)] hover:text-[var(--color-primary)]"
-                >
-                  Today's deals
-                </a>
+    <footer className="mt-12 bg-[#0B1F3A] text-slate-300">
+      <div className="mx-auto max-w-7xl px-4 py-12">
+        <div className="grid grid-cols-1 gap-10 md:grid-cols-2 lg:grid-cols-5">
+          <div className="lg:col-span-2">
+            <Logo light />
+            <p className="mt-4 max-w-sm text-sm leading-relaxed text-slate-300">
+              Ku soo dhawoow Dalab Online! Order from Somalia&apos;s best local stores — delivered to
+              your door, paid with EVC Plus or eDahab.
+            </p>
+            <ul className="mt-6 space-y-3 text-sm">
+              {promises.map(({ icon: Icon, text }) => (
+                <li key={text} className="flex items-center gap-3">
+                  <Icon size={18} className="text-[#FFB020]" />
+                  {text}
+                </li>
+              ))}
+              <li className="flex items-center gap-3">
+                <MapPin size={18} className="text-[#FFB020]" />
+                Maka Al-Mukarama Road, Mogadishu, Somalia
               </li>
             </ul>
           </div>
-          <div>
-            <h3 className="font-bold mb-4">About</h3>
-            <ul className="space-y-2">
-              <li>
-                <a
-                  href="/about"
-                  className="text-[var(--color-muted)] hover:text-[var(--color-primary)]"
-                >
-                  About us
-                </a>
-              </li>
-              <li>
-                <a
-                  href="/terms"
-                  className="text-[var(--color-muted)] hover:text-[var(--color-primary)]"
-                >
-                  Terms of service
-                </a>
-              </li>
-              <li>
-                <a
-                  href="/privacy"
-                  className="text-[var(--color-muted)] hover:text-[var(--color-primary)]"
-                >
-                  Data protection
-                </a>
-              </li>
-            </ul>
-          </div>
-          <div>
-            <h3 className="font-bold mb-4">Help</h3>
-            <ul className="space-y-2">
-              <li>
-                <a
-                  href="/sell"
-                  className="text-[var(--color-muted)] hover:text-[var(--color-primary)]"
-                >
-                  How to sell on Ashal
-                </a>
-              </li>
-              <li>
-                <a
-                  href="/seller-help"
-                  className="text-[var(--color-muted)] hover:text-[var(--color-primary)]"
-                >
-                  Seller help
-                </a>
-              </li>
-              <li>
-                <a
-                  href="/help"
-                  className="text-[var(--color-muted)] hover:text-[var(--color-primary)]"
-                >
-                  General help
-                </a>
-              </li>
-              <li>
-                <a
-                  href="/stores"
-                  className="text-[var(--color-muted)] hover:text-[var(--color-primary)]"
-                >
-                  List of stores
-                </a>
-              </li>
-            </ul>
-          </div>
+
+          {columns.map((column) => (
+            <div key={column.title}>
+              <h3 className="mb-4 text-sm font-bold uppercase tracking-wide text-white">
+                {column.title}
+              </h3>
+              <ul className="space-y-2 text-sm">
+                {column.links.map((link) => (
+                  <li key={link.label}>
+                    <Link to={link.to} className="hover:text-[#FFB020]">
+                      {link.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
         </div>
       </div>
-      <div className="border-t border-[var(--color-border)]">
-        <div className="container mx-auto py-4 px-4 flex justify-between items-center">
-          <p className="text-[var(--color-muted)] text-sm">
-            © {new Date().getFullYear()} - All rights reserved - developed by deero enterprise
-          </p>
-          <div className="flex items-center space-x-4">
-            <span className="text-[var(--color-muted)]">EVC plus</span>
-            <span className="text-[var(--color-muted)]">Edahab</span>
+
+      <div className="border-t border-white/10">
+        <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-3 px-4 py-5 text-xs sm:flex-row">
+          <p>© {new Date().getFullYear()} Dalab Online · Mahadsanid for shopping local.</p>
+          <div className="flex items-center gap-2">
+            <span className="text-slate-400">We accept</span>
+            <span className="rounded bg-[#16A34A] px-2 py-1 font-bold text-white">EVC Plus</span>
+            <span className="rounded bg-[#FFB020] px-2 py-1 font-bold text-[#0B1F3A]">eDahab</span>
           </div>
         </div>
       </div>

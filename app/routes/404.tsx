@@ -14,7 +14,7 @@ export default function NotFoundPage() {
         </p>
         <button
           onClick={() => navigate('/')}
-          className="mt-6 px-5 py-2.5 rounded font-semibold bg-[var(--color-accent)] text-white hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[var(--color-accent)] transition-opacity duration-300"
+          className="mt-6 px-5 py-2.5 rounded font-semibold bg-[var(--color-accent)] text-[var(--color-dark)] hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[var(--color-accent)] transition-opacity duration-300"
         >
           Go to Homepage
         </button>

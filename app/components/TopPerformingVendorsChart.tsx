@@ -20,6 +20,7 @@ export default function TopPerformingVendorsChart() {
     <div className="p-4 rounded border-l-4 bg-green-100 border-green-500">
       <h3 className="text-lg font-semibold mb-4">Top Performing Vendors</h3>
       <PieChart
+        colors={['#4189DD', '#FFB020', '#16A34A', '#0B1F3A', '#64A0E3', '#DC2626']}
         series={[
           {
             data: chartData,

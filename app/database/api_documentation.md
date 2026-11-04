@@ -1,6 +1,6 @@
-# Ashal Market API Documentation
+# Dalab Online API Documentation
 
-This document provides a detailed overview of all available API endpoints for the Ashal Market application, categorized by function and required authorization.
+This document provides a detailed overview of all available API endpoints for the Dalab Online application, categorized by function and required authorization.
 
 ---
 

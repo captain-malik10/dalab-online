@@ -28,7 +28,7 @@ const UnderConstructionCard: React.FC<UnderConstructionCardProps> = ({ onButtonC
               <div className="mt-6">
                 <button
                   onClick={onButtonClick}
-                  className="px-5 py-2.5 rounded font-semibold bg-[var(--color-accent)] text-white hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[var(--color-accent)] transition-opacity duration-300"
+                  className="px-5 py-2.5 rounded font-semibold bg-[var(--color-accent)] text-[var(--color-dark)] hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[var(--color-accent)] transition-opacity duration-300"
                 >
                   Go Back
                 </button>

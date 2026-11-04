@@ -81,6 +81,7 @@ function StoreDashboardCharts() {
 
       {revenues.length > 0 ? (
         <BarChart
+          colors={['#4189DD', '#FFB020', '#16A34A']}
           xAxis={[{ scaleType: 'band', data: dates, label: 'Day' }]}
           series={[{ data: revenues, label: 'Revenue' }]}
           height={380}

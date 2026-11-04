@@ -1,8 +1,8 @@
-# Ashal Market
+# Dalab Online
 
 ## 1. Project Introduction
 
-Ashal Market is a web-based Multi-Vendor E-Commerce Marketplace platform that allows multiple vendors to sell their products through a single online storefront. Customers can browse products from various vendors, place orders, and make payments, while vendors manage their own product listings, inventory, and sales. The platform also includes an admin panel for overseeing vendors, orders, and analytics.
+Dalab Online is a web-based Multi-Vendor E-Commerce Marketplace platform that allows multiple vendors to sell their products through a single online storefront. Customers can browse products from various vendors, place orders, and make payments, while vendors manage their own product listings, inventory, and sales. The platform also includes an admin panel for overseeing vendors, orders, and analytics.
 
 This project is designed to provide a real-world, medium-to-pro level application, incorporating authentication, role-based access, payment integration, and advanced features like notifications and commission tracking.
 

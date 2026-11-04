@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import logo from '../assets/images/logo.png';
+import Logo from './Logo';
 import {
   Search,
   Heart,
@@ -70,9 +70,7 @@ const Header: React.FC<HeaderProps> = ({ breadcrumbs }) => {
   return (
     <header className="w-full border-b border-[var(--color-border)] bg-[var(--color-background)] shadow-sm">
       <div className="flex items-center justify-between p-4">
-        <div className="flex items-center space-x-2">
-          <img src={logo} alt="Africa's Place" className="h-8 w-auto" />
-        </div>
+        <Logo />
 
         <div
           className="relative flex w-[600px] h-[40px] items-center rounded border border-[var(--color-border)]"

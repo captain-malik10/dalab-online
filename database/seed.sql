@@ -1,91 +1,120 @@
--- Ashal Online Market — demo data (matches database/schema.sql)
--- Demo logins (passwords are stored as bcrypt hashes, generated with scripts/hash-passwords.js):
---   Admin:     admin@ashal.so       / Admin@123
---   Vendors:   bakaara@ashal.so     / Vendor@123   (store login + customer login)
---              hodan@ashal.so       / Vendor@123
---   Customers: customer@ashal.so    / Customer@123
---              amina@ashal.so       / Customer@123
+-- Dalab Online — demo data (matches database/schema.sql)
+-- Passwords are bcrypt hashes generated with scripts/hash-passwords.js.
+--
+-- Customer / admin logins (/login):
+--   Admin:     admin@dalab.test     / Admin123!
+--   Customer:  faadumo@dalab.test   / Customer123!
+--   Customer:  cabdi@dalab.test     / Customer123!
+-- Vendor accounts (each owns two stores):
+--   Ayaan Warsame  ayaan@dalab.test  / Vendor123!  -> Hodan Electronics, Bakaaro Home & Kitchen
+--   Sahra Nuur     sahra@dalab.test  / Vendor123!  -> Xamar Fashion House, Lido Beauty
+-- Store logins (/store), password Vendor123!:
+--   hodan.electronics@dalab.test, bakaaro.home@dalab.test,
+--   xamar.fashion@dalab.test, lido.beauty@dalab.test
 
 INSERT INTO Users (id, name, email, password, phone, role) VALUES
-(1, 'Ashal Admin', 'admin@ashal.so', '$2b$10$vAMi6rVg4t1MhQB9jFfqOeljr1X1/gKe5zP0SXneev28QuGJLmoTi', '+252610000001', 'admin'),
-(2, 'Abdirahman Warsame', 'bakaara@ashal.so', '$2b$10$8CHWvu2wWBd8rRZg9Y1DbekcQxdVYqLJYs7VjFowHr6yl1SlRBsnG', '+252615550102', 'vendor'),
-(3, 'Hodan Ali', 'hodan@ashal.so', '$2b$10$8CHWvu2wWBd8rRZg9Y1DbekcQxdVYqLJYs7VjFowHr6yl1SlRBsnG', '+252615550103', 'vendor'),
-(4, 'Mohamed Hassan', 'customer@ashal.so', '$2b$10$TGTfxhpSITd3.9K.YiX.S.RslSV4VsVnMVSCoB2fMV2NNwAEP39Dq', '+252615550104', 'customer'),
-(5, 'Amina Yusuf', 'amina@ashal.so', '$2b$10$TGTfxhpSITd3.9K.YiX.S.RslSV4VsVnMVSCoB2fMV2NNwAEP39Dq', '+252625550105', 'customer');
+(1, 'Dalab Admin', 'admin@dalab.test', '$2b$10$R6z7VgLrsjbv48kEVdqLfutVTGasd6tz6La.rrA6Iy3xudMQgFSGi', '+252610100100', 'admin'),
+(2, 'Ayaan Warsame', 'ayaan@dalab.test', '$2b$10$2ps.RC6I0Mpvgm2o72hYEuHaoeFdaPVUFnsMlX65CyoQER0BocTDC', '+252617202020', 'vendor'),
+(3, 'Sahra Nuur', 'sahra@dalab.test', '$2b$10$2ps.RC6I0Mpvgm2o72hYEuHaoeFdaPVUFnsMlX65CyoQER0BocTDC', '+252627303030', 'vendor'),
+(4, 'Faadumo Cali', 'faadumo@dalab.test', '$2b$10$xWeETIPpHtVpZsC6rna.w.3KVcdxzTUSzq/ivebPkavTGHdttdRS.', '+252615404040', 'customer'),
+(5, 'Cabdi Maxamed', 'cabdi@dalab.test', '$2b$10$xWeETIPpHtVpZsC6rna.w.3KVcdxzTUSzq/ivebPkavTGHdttdRS.', '+252625505050', 'customer');
 
 INSERT INTO Vendors (id, user_id, email, password, store_name, description, isVerified, country, city, district, logo_url, license_url, status) VALUES
-(1, 2, 'bakaara@ashal.so', '$2b$10$8CHWvu2wWBd8rRZg9Y1DbekcQxdVYqLJYs7VjFowHr6yl1SlRBsnG', 'Bakaara Tech & Home',
- 'Electronics, home appliances, bags and footwear from Bakaara Market. Genuine products, delivery across Mogadishu.',
- TRUE, 'Somalia', 'Mogadishu', 'Hawl Wadaag', '/seed/tech-bundle.png', NULL, 'approved'),
-(2, 3, 'hodan@ashal.so', '$2b$10$8CHWvu2wWBd8rRZg9Y1DbekcQxdVYqLJYs7VjFowHr6yl1SlRBsnG', 'Hodan Beauty & Fashion',
- 'Original skincare, make-up and modern clothing for women, men and families.',
- TRUE, 'Somalia', 'Mogadishu', 'Hodan', '/seed/skincare-set.jpg', NULL, 'approved');
+(1, 2, 'hodan.electronics@dalab.test', '$2b$10$2ps.RC6I0Mpvgm2o72hYEuHaoeFdaPVUFnsMlX65CyoQER0BocTDC', 'Hodan Electronics',
+ 'Phones, laptops and smart accessories with 6-month shop warranty. Free setup and SIM activation in store.',
+ TRUE, 'Somalia', 'Mogadishu', 'Hodan', '/seed/smartphone.svg', NULL, 'approved'),
+(2, 3, 'xamar.fashion@dalab.test', '$2b$10$2ps.RC6I0Mpvgm2o72hYEuHaoeFdaPVUFnsMlX65CyoQER0BocTDC', 'Xamar Fashion House',
+ 'Modern clothing, shoes and bags for men, women and kids. Free tailoring on suits bought in store.',
+ TRUE, 'Somalia', 'Mogadishu', 'Xamar Weyne', '/seed/family-outfits.png', NULL, 'approved'),
+(3, 2, 'bakaaro.home@dalab.test', '$2b$10$2ps.RC6I0Mpvgm2o72hYEuHaoeFdaPVUFnsMlX65CyoQER0BocTDC', 'Bakaaro Home & Kitchen',
+ 'Appliances, cookware and solar power for Somali homes. Delivery and installation across Mogadishu.',
+ TRUE, 'Somalia', 'Mogadishu', 'Hawl Wadaag', '/seed/home-appliances.png', NULL, 'approved'),
+(4, 3, 'lido.beauty@dalab.test', '$2b$10$2ps.RC6I0Mpvgm2o72hYEuHaoeFdaPVUFnsMlX65CyoQER0BocTDC', 'Lido Beauty',
+ 'Original skincare and make-up chosen for our warm climate. Gift boxes for Eid and weddings.',
+ TRUE, 'Somalia', 'Mogadishu', 'Abdiaziz', '/seed/skincare-set.jpg', NULL, 'approved');
 
 INSERT INTO Categories (id, name, image_url) VALUES
 (1, 'Electronics', '/seed/tech-bundle.png'),
-(2, 'Fashion', '/seed/family-outfits.png'),
-(3, 'Beauty & Skincare', '/seed/skincare-set.jpg'),
-(4, 'Home & Appliances', '/seed/home-appliances.png'),
-(5, 'Shoes & Sports', '/seed/white-sneakers.png'),
-(6, 'Bags & Travel', '/seed/pink-backpack.png');
+(2, 'Phones & Accessories', '/seed/smartphone.svg'),
+(3, 'Fashion', '/seed/family-outfits.png'),
+(4, 'Home & Kitchen', '/seed/home-appliances.png'),
+(5, 'Beauty', '/seed/skincare-set.jpg'),
+(6, 'Sports', '/seed/football.svg');
 
 INSERT INTO Products (id, vendor_id, category_id, name, price, description, image_urls, isFeatured, stock) VALUES
--- Bakaara Tech & Home
-(1, 1, 1, '13-inch Ultrabook Laptop (8GB RAM, 256GB SSD)', 650.00,
- 'Thin and light 13-inch laptop for students and office work. 8GB RAM, fast 256GB SSD, full-day battery and backlit keyboard. Comes with charger and 6-month shop warranty.',
- '["/seed/tech-bundle.png"]', TRUE, 12),
-(2, 1, 1, 'Wireless Noise-Cancelling Headphones', 85.00,
- 'Over-ear Bluetooth headphones with active noise cancelling, soft memory-foam cushions and up to 30 hours of battery. Great for travel, study and calls.',
- '["/seed/tech-bundle.png"]', FALSE, 30),
-(3, 1, 1, 'Smartwatch with Fitness Tracking', 45.00,
- 'Water-resistant smartwatch with heart-rate monitor, step counter, sleep tracking and call/message notifications. Works with Android and iPhone.',
- '["/seed/tech-bundle.png"]', FALSE, 40),
-(4, 1, 4, 'Double-Door Refrigerator 450L', 620.00,
- 'Large frost-free double-door fridge with energy-saving inverter compressor, ideal for family homes. Stays cool longer during power cuts. Free delivery in Mogadishu.',
+-- Hodan Electronics
+(1, 1, 1, 'StudyPro 14" Laptop — Core i5, 8GB, 512GB SSD', 520.00,
+ 'A light 14-inch laptop built for university and office work. Fast 512GB SSD, 8GB RAM and a battery that lasts through long study days and power cuts. Includes charger, laptop sleeve and 6-month Hodan Electronics warranty.',
+ '["/seed/tech-bundle.png"]', TRUE, 9),
+(2, 1, 1, 'BassWave Wireless Headphones (ANC)', 59.00,
+ 'Over-ear Bluetooth headphones with active noise cancelling — perfect for the busy bus ride or studying at home. Up to 35 hours of playtime and a built-in mic for clear calls.',
+ '["/seed/headphones.svg"]', FALSE, 25),
+(3, 1, 1, 'FitPulse Smartwatch', 34.00,
+ 'Water-resistant smartwatch with step counter, heart-rate and sleep tracking, plus call and WhatsApp notifications. Works with Android and iPhone; 7-day battery.',
+ '["/seed/smartwatch.svg"]', FALSE, 40),
+(4, 1, 2, 'Nova X6 Smartphone — 128GB, Dual SIM', 159.00,
+ '6.6-inch display, 128GB storage, 50MP camera and a 5,000 mAh battery. Dual SIM for Hormuud and Somtel. We activate your SIM and EVC Plus for free in store.',
+ '["/seed/smartphone.svg"]', TRUE, 30),
+(5, 1, 2, 'Nova Lite Smartphone — 64GB', 95.00,
+ 'An easy, reliable everyday phone with a big battery, dual SIM and a sharp 6.5-inch screen. A great first phone for students and parents.',
+ '["/seed/smartphone.svg"]', FALSE, 45),
+(6, 1, 2, 'PowerGo 20,000 mAh Power Bank', 21.00,
+ 'Charge your phone up to five times when the electricity is out. Fast-charging USB-C and two USB ports, with a battery-level display.',
+ '["/seed/powerbank.svg"]', TRUE, 70),
+(7, 1, 2, 'AirTune Wireless Earbuds', 26.00,
+ 'True wireless earbuds with a pocket charging case, touch controls and 24 hours of total playtime. Sweat-resistant for walks along Lido beach.',
+ '["/seed/earbuds.svg"]', FALSE, 55),
+-- Xamar Fashion House
+(8, 2, 3, 'Classic Wedding Suit — Black, 2 Pieces', 125.00,
+ 'Slim-fit black suit with jacket and trousers in a breathable fabric made for warm evenings. Free tailoring in our Xamar Weyne shop.',
+ '["/seed/mens-suit.png"]', TRUE, 14),
+(9, 2, 3, 'Women''s Tailored Office Blazer', 44.00,
+ 'A sharp, softly lined blazer that layers beautifully over an abaya, dress or trousers. Ideal for the office, university and events.',
+ '["/seed/womens-blazer.png"]', FALSE, 20),
+(10, 2, 3, 'Family Holiday Outfits (Set of 4)', 68.00,
+ 'Matching light-cotton outfits for the whole family — a shirt for dad, a dress for mum and sets for two children. Made for Eid photos and beach days.',
+ '["/seed/family-outfits.png"]', FALSE, 8),
+(11, 2, 3, 'Urban Laptop Backpack with USB Port', 23.00,
+ 'Water-resistant black backpack with a padded 15.6-inch laptop pocket, USB charging port and anti-theft back pocket.',
+ '["/seed/black-backpack.png"]', FALSE, 50),
+(12, 2, 6, 'CloudStep White Sneakers', 46.00,
+ 'Clean all-white sneakers with a cushioned sole for all-day comfort. Easy to match with jeans, khamiis or sportswear. Sizes 39–45.',
+ '["/seed/white-sneakers.png"]', TRUE, 36),
+(13, 2, 6, 'Match Football — Size 5', 17.00,
+ 'Durable stitched football for the pitch, the street or the beach. Holds its shape and air for months of play.',
+ '["/seed/football.svg"]', FALSE, 60),
+-- Bakaaro Home & Kitchen
+(14, 3, 4, 'CoolKeep Inverter Fridge — 420L', 575.00,
+ 'Large double-door fridge with an energy-saving inverter compressor that keeps food cool longer during power cuts. Free delivery and installation in Mogadishu.',
  '["/seed/home-appliances.png"]', TRUE, 6),
-(5, 1, 4, 'Front-Load Washing Machine 8kg', 390.00,
- '8kg automatic washing machine with 15 wash programs, quick-wash mode and low water use. Gentle on clothes, strong on dirt.',
- '["/seed/home-appliances.png"]', FALSE, 8),
-(6, 1, 5, 'Classic White Leather Sneakers', 55.00,
- 'Clean all-white low-top sneakers with cushioned sole. Easy to match with jeans, khamiis or sportswear. Sizes 39 to 45.',
- '["/seed/white-sneakers.png"]', TRUE, 50),
-(7, 1, 6, 'Laptop Backpack with USB Charging Port', 25.00,
- 'Water-resistant black backpack with padded 15.6-inch laptop pocket, built-in USB charging port and anti-theft back pocket. Perfect for university and work.',
- '["/seed/black-backpack.png"]', FALSE, 60),
-(8, 1, 6, 'Women''s Travel Backpack – Blush Pink', 32.00,
- 'Stylish pink travel backpack with many compartments, laptop sleeve, USB port and gold zippers. Light, strong and comfortable for daily use.',
- '["/seed/pink-backpack.png"]', FALSE, 35),
-(9, 1, 6, 'Kids School Backpack – Sunny Yellow', 15.00,
- 'Bright, durable school bag for children aged 5 to 12, with padded straps and space for books and a lunch box.',
- '["/seed/kids-backpacks.png"]', FALSE, 80),
--- Hodan Beauty & Fashion
-(10, 2, 3, 'Max Factor Facefinity 3-in-1 Foundation SPF 20', 18.00,
- 'Primer, concealer and foundation in one bottle with SPF 20. Light, long-lasting coverage that suits warm climates. 30ml, several shades available.',
- '["/seed/foundation-1.jpg", "/seed/foundation-2.jpg", "/seed/foundation-3.jpg"]', TRUE, 45),
-(11, 2, 3, 'Anua Heartleaf 77% Soothing Toner 250ml', 22.00,
- 'Gentle Korean toner with 77% heartleaf extract that calms redness and hydrates sensitive skin. Alcohol-free, suitable for daily use.',
- '["/seed/toner.webp"]', FALSE, 25),
-(12, 2, 3, 'The Ordinary Skincare Essentials Set (4 pieces)', 38.00,
- 'Four best-sellers: mineral sunscreen SPF 30, hydrating moisturizer, salicylic acid 2% for acne-prone skin and multi-peptide hair serum.',
- '["/seed/ordinary-set.webp"]', TRUE, 20),
-(13, 2, 3, 'Glow Skincare Gift Box', 55.00,
- 'A complete glow routine in one box: foaming cleanser, face oil, drying lotion, overnight mask and gel-cream moisturizer. A perfect gift for Eid or weddings.',
- '["/seed/skincare-set.jpg"]', FALSE, 15),
-(14, 2, 2, 'Men''s Slim-Fit Black Suit (2 pieces)', 110.00,
- 'Elegant slim-fit black suit with jacket and trousers, made from breathable fabric. Ideal for weddings, graduations and office.',
- '["/seed/mens-suit.png"]', TRUE, 18),
-(15, 2, 2, 'Women''s Tailored Black Blazer', 42.00,
- 'Modern tailored blazer with a soft lining. Looks smart over an abaya, dress or trousers for work and events.',
- '["/seed/womens-blazer.png"]', FALSE, 22),
-(16, 2, 2, 'Family Matching Summer Outfit Set', 60.00,
- 'Matching floral summer outfits for the whole family: shirt for dad, dress for mum and sets for two kids. Light cotton, perfect for photos and holidays.',
- '["/seed/family-outfits.png"]', FALSE, 10);
+(15, 3, 4, 'Bakaaro Non-Stick Cookware Set (7 pieces)', 52.00,
+ 'Pots, a frying pan and lids with a durable non-stick coating — ideal for bariis, suqaar and sabaayad. Works on gas and electric stoves.',
+ '["/seed/cookware.svg"]', FALSE, 18),
+(16, 3, 4, 'SteelBoil Electric Kettle 1.8L', 18.00,
+ 'Fast-boiling stainless-steel kettle for shaah and coffee, with automatic shut-off and a 360° base.',
+ '["/seed/kettle.svg"]', FALSE, 40),
+(17, 3, 4, 'SunHome Solar Light & Charging Kit', 39.00,
+ 'A solar panel with a bright LED lamp and USB charging for phones — reliable light and power for your home, even off-grid.',
+ '["/seed/solar-kit.svg"]', TRUE, 24),
+-- Lido Beauty
+(18, 4, 5, 'Max Factor Facefinity 3-in-1 Foundation, SPF 20', 19.00,
+ 'Primer, concealer and foundation in one bottle, with SPF 20. Light, long-lasting coverage that holds up in Mogadishu heat. 30ml.',
+ '["/seed/foundation-1.jpg", "/seed/foundation-2.jpg", "/seed/foundation-3.jpg"]', TRUE, 35),
+(19, 4, 5, 'Anua Heartleaf 77% Soothing Toner, 250ml', 24.00,
+ 'A gentle Korean toner that calms redness and hydrates sensitive skin. Alcohol-free and suitable for daily use morning and night.',
+ '["/seed/toner.webp"]', FALSE, 22),
+(20, 4, 5, 'Bridal Glow Skincare Box', 58.00,
+ 'Cleanser, face oil, drying lotion, overnight mask and gel-cream moisturiser in one gift box — the perfect present for a bride or for Eid.',
+ '["/seed/skincare-set.jpg"]', TRUE, 12);
 
 INSERT INTO Reviews (product_id, customer_id, rating, comment) VALUES
-(1, 4, 5, 'Fast laptop, battery lasts all day at university. Delivered in two days.'),
-(1, 5, 4, 'Good value for the price. The charger is a bit short.'),
-(6, 4, 5, 'Very comfortable and the size was correct.'),
-(10, 5, 5, 'Same shade as in the shop, stays on the whole day even in the heat.'),
-(10, 4, 4, 'Bought as a gift for my sister, she liked it.'),
-(12, 5, 4, 'Original products. The sunscreen leaves a little white cast.'),
-(14, 4, 5, 'Wore it to my brother''s wedding, fits perfectly.');
+(1, 4, 5, 'Fast laptop and the battery really lasts during power cuts. Delivered the same day to Hodan.'),
+(1, 5, 4, 'Good value. The charger cable could be longer.'),
+(4, 5, 5, 'They activated my SIM and EVC Plus in five minutes. Great phone for the price.'),
+(4, 4, 4, 'Camera is very good in daylight, a bit weak at night.'),
+(6, 4, 5, 'Charged my phone four times when the electricity was off. Waa fiican yahay!'),
+(8, 5, 5, 'Wore it to my brother''s wedding — the free tailoring made it fit perfectly.'),
+(12, 4, 4, 'Comfortable and the size was correct. They get dirty quickly because they are white.'),
+(14, 5, 5, 'Installed the same day. Food stayed cold through a long power cut.'),
+(18, 4, 5, 'Same shade as in the shop and it stays on the whole day, even in the heat.'),
+(20, 5, 5, 'Bought it for my sister''s wedding — she loved it. Beautiful packaging.');
