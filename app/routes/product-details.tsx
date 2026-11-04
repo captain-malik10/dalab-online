@@ -62,29 +62,26 @@ function ProductDetailContent({ productDetails }: { productDetails: ProductDetai
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
+    <div className="min-h-screen bg-[var(--color-background)] flex flex-col">
       <Header breadcrumbs={breadcrumbs} />
 
-      <main className="max-w-7xl w-full mx-auto px-6 py-10 space-y-12">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-          <section className="lg:col-span-8 space-y-8">
-            <div className="bg-white rounded shadow p-4 lg:p-6">
-              <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
-                <div className="lg:col-span-6">
-                  <ProductGallery images={productImages} alt={productDetails.product.name} />
-                </div>
-
-                <div className="lg:col-span-6">
-                  <ProductInfo product={productDetails.product} reviews={productDetails.reviews} />
-                </div>
-              </div>
+      <main className="mx-auto w-full max-w-7xl space-y-10 px-4 py-6 sm:py-10">
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-12 lg:gap-8">
+          <section className="space-y-6 lg:col-span-7">
+            <div className="rounded-2xl border border-[var(--color-border)] bg-white p-3 sm:p-4">
+              <ProductGallery images={productImages} alt={productDetails.product.name} />
             </div>
-
-            <ProductDetailsTabs product={productDetails.product} reviews={productDetails.reviews} />
+            <div className="hidden lg:block">
+              <ProductDetailsTabs
+                product={productDetails.product}
+                reviews={productDetails.reviews}
+              />
+            </div>
           </section>
 
-          <aside className="lg:col-span-4">
-            <div className="sticky top-6 space-y-4">
+          <aside className="lg:col-span-5">
+            <div className="space-y-4 lg:sticky lg:top-40">
+              <ProductInfo product={productDetails.product} reviews={productDetails.reviews} />
               <button
                 type="button"
                 onClick={() =>
@@ -110,6 +107,10 @@ function ProductDetailContent({ productDetails }: { productDetails: ProductDetai
               />
             </div>
           </aside>
+
+          <section className="lg:hidden">
+            <ProductDetailsTabs product={productDetails.product} reviews={productDetails.reviews} />
+          </section>
         </div>
 
         {similarProducts.length > 0 && (
@@ -130,7 +131,7 @@ export default function ProductDetail() {
   // Error state
   if (error) {
     return (
-      <div className="min-h-screen bg-gray-50 flex flex-col">
+      <div className="min-h-screen bg-[var(--color-background)] flex flex-col">
         <Header breadcrumbs={{ Home: '/', Shop: '/shop' }} />
         <main className="max-w-7xl w-full mx-auto px-6 py-10">
           <div className="flex items-center justify-center min-h-[400px]">
@@ -155,7 +156,7 @@ export default function ProductDetail() {
   // No product found
   if (!loading && !productDetails) {
     return (
-      <div className="min-h-screen bg-gray-50 flex flex-col">
+      <div className="min-h-screen bg-[var(--color-background)] flex flex-col">
         <Header breadcrumbs={{ Home: '/', Shop: '/shop' }} />
         <main className="max-w-7xl w-full mx-auto px-6 py-10">
           <div className="flex items-center justify-center min-h-[400px]">
@@ -173,7 +174,7 @@ export default function ProductDetail() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex flex-col">
+      <div className="min-h-screen bg-[var(--color-background)] flex flex-col">
         <Header breadcrumbs={{ Home: '/', Shop: '/shop' }} />
         <main className="max-w-7xl w-full mx-auto px-6 py-10 space-y-12">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">

@@ -1,4 +1,4 @@
-import { Heart, ShoppingCart } from 'lucide-react';
+import { Heart, ShieldCheck, ShoppingCart, Smartphone, Star, Truck } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { useCart } from '~/hooks/useCart';
 import { useGuestCart } from '~/hooks/useGuestCart';
@@ -145,81 +145,103 @@ export default function ProductInfo({ product, reviews }: ProductInfoProps) {
     }
   };
 
-  // Use real product data with fallback values
-  const basePrice = typeof product.price === 'string' ? parseFloat(product.price) : product.price;
-  const oldPrice = basePrice * 1.5; // Old price is 1.5x the current price
-  const discount = oldPrice - basePrice; // Calculate discount amount
-  const discountPercentage = Math.round((discount / oldPrice) * 100);
-
-  // computed values
-  const priceAfterDiscount = basePrice; // Current price is already discounted
+  const price = typeof product.price === 'string' ? parseFloat(product.price) : product.price;
+  const inStock = product.stock > 0;
+  const rating = Number(reviews.averageRating || 0);
 
   return (
-    <div className="bg-white rounded shadow-sm p-6">
-      <h2 className="text-2xl font-semibold text-gray-800 mb-1">{product.name}</h2>
-      <p className="text-sm text-gray-500 mb-4">
-        {'⭐'.repeat(Math.round(reviews.averageRating)) + ' '}
-        {reviews.averageRating.toFixed(1)} average rating based on {reviews.totalReviews} reviews
-      </p>
-
-      <div className="flex items-center gap-3 mb-3">
-        <p className="text-3xl font-bold text-blue-600">${priceAfterDiscount.toFixed(2)}</p>
-        <p className="text-gray-500 line-through text-lg">${oldPrice.toFixed(2)}</p>
-        <span className="bg-red-100 text-red-600 px-2 py-1 text-sm rounded">
-          {discountPercentage}% off
+    <div className="rounded-2xl border border-[var(--color-border)] bg-white p-5 sm:p-6">
+      <h1 className="text-xl font-extrabold leading-snug text-[var(--color-dark)] sm:text-2xl">
+        {product.name}
+      </h1>
+      <div className="mt-2 flex items-center gap-2 text-sm text-[var(--color-muted)]">
+        <span className="flex">
+          {[1, 2, 3, 4, 5].map((i) => (
+            <Star
+              key={i}
+              size={16}
+              className={
+                i <= Math.round(rating) ? 'fill-[#FFB020] text-[#FFB020]' : 'text-gray-300'
+              }
+            />
+          ))}
         </span>
+        {reviews.totalReviews > 0 ? (
+          <span>
+            <span className="font-semibold text-[var(--color-dark)]">{rating.toFixed(1)}</span> ·{' '}
+            {reviews.totalReviews} review{reviews.totalReviews === 1 ? '' : 's'}
+          </span>
+        ) : (
+          <span>No reviews yet</span>
+        )}
       </div>
 
-      <div className="flex items-center gap-3 mb-4">
-        <p className="text-sm font-medium text-gray-700">Quantity:</p>
-        <div className="flex items-center border rounded overflow-hidden">
+      <p className="mt-4 text-3xl font-extrabold text-[var(--color-dark)]">${price.toFixed(2)}</p>
+      <p
+        className={`mt-1 text-sm font-semibold ${
+          !inStock ? 'text-[#DC2626]' : product.stock <= 8 ? 'text-[#9A6400]' : 'text-[#16A34A]'
+        }`}
+      >
+        {!inStock
+          ? 'Out of stock'
+          : product.stock <= 8
+            ? `Only ${product.stock} left — order soon`
+            : 'In stock'}
+      </p>
+
+      <div className="mt-5 flex items-center gap-3">
+        <div className="flex items-center overflow-hidden rounded-xl border border-[var(--color-border)]">
           <button
-            className="px-3 py-1 text-lg text-gray-700 hover:bg-gray-100"
+            type="button"
+            className="px-3.5 py-2 text-lg hover:bg-gray-100 disabled:opacity-40"
             onClick={() => setQuantity((q) => Math.max(1, q - 1))}
+            disabled={quantity <= 1}
+            aria-label="Decrease quantity"
           >
             −
           </button>
-          <span className="px-4 py-1 text-black">{quantity}</span>
+          <span className="w-10 text-center font-semibold">{quantity}</span>
           <button
-            className="px-3 py-1 text-lg text-gray-700 hover:bg-gray-100"
-            onClick={() => setQuantity((q) => q + 1)}
+            type="button"
+            className="px-3.5 py-2 text-lg hover:bg-gray-100 disabled:opacity-40"
+            onClick={() => setQuantity((q) => Math.min(product.stock || 1, q + 1))}
+            disabled={quantity >= product.stock}
+            aria-label="Increase quantity"
           >
             +
           </button>
         </div>
-        <p className="text-sm text-gray-500">({product.stock} in stock)</p>
-      </div>
-
-      <div className="flex flex-col gap-3">
-        <button
-          onClick={handleAddToCart}
-          disabled={isAddingToCart}
-          className="bg-blue-600 hover:bg-blue-700 text-white py-3 rounded font-semibold flex justify-center items-center gap-2 disabled:opacity-50"
-        >
-          <ShoppingCart /> {isAddingToCart ? 'Adding...' : 'Add to Cart'}
-        </button>
         <button
           onClick={handleToggleWishlist}
           disabled={isUpdatingWishlist}
-          className={`border py-3 rounded flex items-center justify-center gap-4 font-medium disabled:opacity-50 ${
-            isWishlisted
-              ? 'bg-[var(--color-accent)]/20 border-[var(--color-accent)] text-[#9A6400] hover:bg-[var(--color-accent)]/30'
-              : 'border-gray-400 text-gray-700 hover:bg-gray-100'
-          }`}
+          className="flex h-11 w-11 items-center justify-center rounded-xl border border-[var(--color-border)] hover:bg-gray-50 disabled:opacity-50"
+          aria-label={isWishlisted ? 'Remove from wishlist' : 'Save to wishlist'}
         >
-          {isWishlisted ? (
-            <>
-              <Heart fill="#ef4444" strokeWidth={0} />
-              <p>Saved</p>
-            </>
-          ) : (
-            <>
-              <Heart />
-              <p>Save to Wishlist</p>
-            </>
-          )}
+          <Heart size={20} className={isWishlisted ? 'fill-[#DC2626] text-[#DC2626]' : ''} />
         </button>
       </div>
+
+      <button
+        onClick={handleAddToCart}
+        disabled={isAddingToCart || !inStock}
+        className="mt-4 flex w-full items-center justify-center gap-2 rounded-xl bg-[#FFB020] py-3.5 text-base font-bold text-[#0B1F3A] hover:bg-amber-400 disabled:opacity-50"
+      >
+        <ShoppingCart size={20} />{' '}
+        {!inStock ? 'Out of stock' : isAddingToCart ? 'Adding…' : 'Add to cart'}
+      </button>
+
+      <ul className="mt-5 space-y-2.5 border-t border-[var(--color-border)] pt-5 text-sm text-[var(--color-dark)]">
+        <li className="flex items-center gap-3">
+          <Truck size={18} className="text-[#4189DD]" /> Same-day delivery in Mogadishu (order
+          before 2pm)
+        </li>
+        <li className="flex items-center gap-3">
+          <Smartphone size={18} className="text-[#16A34A]" /> Pay with EVC Plus or eDahab
+        </li>
+        <li className="flex items-center gap-3">
+          <ShieldCheck size={18} className="text-[#4189DD]" /> Sold by a verified local store
+        </li>
+      </ul>
     </div>
   );
 }

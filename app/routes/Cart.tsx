@@ -65,7 +65,7 @@ export default function Cart() {
   // Show loading state during hydration to prevent mismatch
   if (!isHydrated) {
     return (
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-[var(--color-background)]">
         <Header breadcrumbs={{ Home: '/', Cart: '/cart' }} />
         <main className="container mx-auto px-4 py-8 min-h-screen">
           <div className="text-center py-12">
@@ -78,7 +78,7 @@ export default function Cart() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-[var(--color-background)]">
       <Header breadcrumbs={{ Home: '/', Cart: '/cart' }} />
       <main className="container mx-auto px-4 py-8 min-h-screen">
         {loading && <p>Loading cart...</p>}
@@ -86,7 +86,7 @@ export default function Cart() {
 
         {!loading && !error && (
           <div className="flex flex-col lg:flex-row gap-6 items-start">
-            <div className="w-full lg:w-2/3 bg-white rounded shadow-sm p-6">
+            <div className="w-full lg:w-2/3 bg-white rounded-2xl border border-[var(--color-border)] p-6">
               {cartItems && cartItems.length > 0 ? (
                 cartItems.map((item) => (
                   <CartItemCard
@@ -108,7 +108,7 @@ export default function Cart() {
             </div>
 
             <div className="w-full lg:w-1/3 lg:sticky top-8">
-              <div className="bg-white rounded shadow-sm p-8 h-fit">
+              <div className="bg-white rounded-2xl border border-[var(--color-border)] p-8 h-fit">
                 <h3 className="text-xl font-bold mb-6">Order Summary</h3>
                 <div className="space-y-3 text-gray-700">
                   <div className="flex justify-between text-md">
@@ -128,7 +128,7 @@ export default function Cart() {
                 {isAuthenticated ? (
                   <Link
                     to="/checkout"
-                    className="w-full mt-8 bg-blue-600 text-white py-3 rounded hover:bg-blue-700 font-semibold text-lg disabled:opacity-50 block text-center"
+                    className="w-full mt-8 bg-[#FFB020] text-[#0B1F3A] font-bold py-3.5 rounded-xl hover:bg-amber-400 font-semibold text-lg disabled:opacity-50 block text-center"
                   >
                     Proceed to Checkout
                   </Link>
@@ -138,7 +138,7 @@ export default function Cart() {
                       setIsCheckoutFlow(true);
                       setShowLoginReminder(true);
                     }}
-                    className="w-full mt-8 bg-blue-600 text-white py-3 rounded hover:bg-blue-700 font-semibold text-lg disabled:opacity-50"
+                    className="w-full mt-8 bg-[#FFB020] text-[#0B1F3A] font-bold py-3.5 rounded-xl hover:bg-amber-400 font-semibold text-lg disabled:opacity-50"
                   >
                     Proceed to Checkout
                   </button>

@@ -72,7 +72,7 @@ function StoreCard({
           {shipsWorldwide && (
             <div className="flex items-center mb-2">
               <span className="mr-2 text-lg ">🌍</span>
-              <span className="text-blue-900">Ships Worldwide</span>
+              <span className="text-blue-900">Delivers across Mogadishu</span>
             </div>
           )}
 

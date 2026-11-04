@@ -20,7 +20,7 @@ function PaymentModal({
 }: PaymentModalProps) {
   return (
     <div className="fixed inset-0 bg-black/10 backdrop-blur-sm flex justify-center items-center z-50 p-4">
-      <div className="bg-white rounded shadow-xl w-full max-w-md">
+      <div className="bg-white rounded-2xl shadow-xl w-full max-w-md">
         <div className="flex justify-between items-center p-4 border-b border-gray-200">
           <h2 className="text-lg text-gray-900">Payment Instructions</h2>
           <button
@@ -32,13 +32,15 @@ function PaymentModal({
         </div>
 
         <div className="p-6">
-          <p className="text-gray-700 mb-4">
-            Please copy this number and put it in your phone dialer app:
+          <p className="mb-4 rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-[#7A4F00]">
+            <strong>Demo payment:</strong> no real money is taken. In a live store you would dial
+            this code to pay; here you can simply press <strong>Place order</strong>.
           </p>
+          <p className="text-gray-700 mb-4">Pay with your phone by dialling this code:</p>
 
           <div
             onClick={copyToClipboard}
-            className="bg-gray-100 p-4 rounded cursor-pointer hover:bg-gray-200 transition-colors"
+            className="bg-gray-100 p-4 rounded-xl cursor-pointer hover:bg-gray-200 transition-colors"
           >
             <div className="flex items-center justify-between">
               <code className="text-lg font-mono text-gray-800">{generatePaymentCode()}</code>
@@ -65,9 +67,9 @@ function PaymentModal({
           <button
             onClick={createOrder}
             disabled={isSubmitting}
-            className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 rounded text-sm px-5 py-2.5 disabled:opacity-50"
+            className="text-[#0B1F3A] font-bold bg-[#FFB020] hover:bg-amber-400 focus:ring-4 focus:outline-none focus:ring-blue-300 rounded text-sm px-5 py-2.5 disabled:opacity-50"
           >
-            Proceed
+            Place order
           </button>
         </div>
       </div>

@@ -218,7 +218,7 @@ export default function CheckoutPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-[var(--color-background)]">
       <Header breadcrumbs={{ Home: '/', Cart: '/cart', Checkout: '/checkout' }} />
       <main className="container mx-auto px-4 py-8 min-h-screen">
         {!isHydrated && (
@@ -236,7 +236,7 @@ export default function CheckoutPage() {
             {!loading && !error && !userLoading && !userError && (
               <div className="flex flex-col lg:flex-row gap-6 items-start">
                 <div className="w-full lg:w-2/3 space-y-6">
-                  <div className="bg-white rounded shadow-sm p-6">
+                  <div className="bg-white rounded-2xl border border-[var(--color-border)] p-6">
                     <h2 className="text-xl font-bold mb-4">Shipping Information</h2>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
@@ -247,7 +247,7 @@ export default function CheckoutPage() {
                           type="text"
                           value={shippingForm.fullName}
                           onChange={(e) => handleShippingChange('fullName', e.target.value)}
-                          className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          className="w-full px-3 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
                           placeholder="Enter your full name"
                         />
                       </div>
@@ -267,7 +267,7 @@ export default function CheckoutPage() {
                         <textarea
                           value={shippingForm.address}
                           onChange={(e) => handleShippingChange('address', e.target.value)}
-                          className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          className="w-full px-3 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
                           rows={3}
                           placeholder="Enter your complete address"
                         />
@@ -280,7 +280,7 @@ export default function CheckoutPage() {
                           type="text"
                           value={shippingForm.city}
                           onChange={(e) => handleShippingChange('city', e.target.value)}
-                          className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          className="w-full px-3 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
                           placeholder="Enter your city"
                         />
                       </div>
@@ -292,15 +292,20 @@ export default function CheckoutPage() {
                           type="text"
                           value={shippingForm.district}
                           onChange={(e) => handleShippingChange('district', e.target.value)}
-                          className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          className="w-full px-3 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
                           placeholder="Enter your district"
                         />
                       </div>
                     </div>
                   </div>
 
-                  <div className="bg-white rounded shadow-sm p-6">
-                    <h2 className="text-xl font-bold mb-4">Payment Method</h2>
+                  <div className="bg-white rounded-2xl border border-[var(--color-border)] p-6">
+                    <h2 className="text-xl font-bold mb-2">Payment Method</h2>
+                    <p className="mb-4 rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-[#7A4F00]">
+                      <strong>Demo store:</strong> this is a university project — no real money is
+                      taken. You will see the EVC Plus / eDahab code, but you don&apos;t need to
+                      dial it.
+                    </p>
                     <div className="space-y-4">
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -336,7 +341,7 @@ export default function CheckoutPage() {
                 </div>
 
                 <div className="w-full lg:w-1/3 lg:sticky top-8">
-                  <div className="bg-white rounded shadow-sm p-8 h-fit">
+                  <div className="bg-white rounded-2xl border border-[var(--color-border)] p-8 h-fit">
                     <h3 className="text-xl font-bold mb-6">Order Summary</h3>
 
                     <div className="mb-6">
@@ -386,9 +391,9 @@ export default function CheckoutPage() {
                     <button
                       onClick={handlePlaceOrder}
                       disabled={!cartItems || cartItems.length === 0 || orderSubmitting}
-                      className="w-full mt-8 bg-blue-600 text-white py-3 rounded hover:bg-blue-700 font-semibold text-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="w-full mt-8 bg-[#FFB020] text-[#0B1F3A] py-3.5 rounded-xl hover:bg-amber-400 font-bold text-lg disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                      {orderSubmitting ? 'Processing Order...' : 'Place Order'}
+                      {orderSubmitting ? 'Placing your order…' : 'Place order'}
                     </button>
 
                     <Link
@@ -422,15 +427,20 @@ export default function CheckoutPage() {
           isOpen={showConfirmationModal}
           onClose={handleConfirmationClose}
           onConfirm={handleConfirmationClose}
-          title="Order Successful!"
-          message="Your order has been placed successfully. You can view your order details in the orders page."
+          title={
+            orderId
+              ? `Mahadsanid! Order #${orderId} is placed 🎉`
+              : 'Mahadsanid! Your order is placed 🎉'
+          }
+          message={`Your order number is #${orderId ?? '—'}. The store will confirm it shortly and deliver it to your door. (Demo payment — no real money was taken.)`}
           icon={
             <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto">
               <Check className="text-green-600" size={28} />
             </div>
           }
-          confirmButtonText="View Orders"
-          confirmButtonClassName="bg-blue-600 hover:bg-blue-700"
+          confirmButtonText="View my orders"
+          cancelButtonText=""
+          confirmButtonClassName="bg-[#4189DD] hover:bg-[#2F74C8]"
         />
       )}
     </div>
