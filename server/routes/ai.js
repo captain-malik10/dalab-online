@@ -1,7 +1,7 @@
 import express from 'express';
 import db from '../config/db.js';
 import { authenticateAny } from '../middleware/auth.js';
-import { generateText, isAIConfigured } from '../ai.js';
+import { generateText, isAIConfigured, getModel, getLastAIError } from '../ai.js';
 import {
   SHOPPING_ASSISTANT_PROMPT,
   PRODUCT_DESCRIPTION_PROMPT,
@@ -164,6 +164,13 @@ const keywordFallback = (message, catalog) => {
       : "Sorry, I couldn't find a matching product. Try other words or browse the Shop page.";
   return { reply, products };
 };
+
+// ---------------------------------------------------------------------------
+// GET /api/ai/status — is AI configured, which model, last error (no secrets)
+// ---------------------------------------------------------------------------
+router.get('/status', (req, res) => {
+  res.json({ configured: isAIConfigured(), model: getModel(), lastError: getLastAIError() });
+});
 
 // ---------------------------------------------------------------------------
 // POST /api/ai/chat  — Dalab AI shopping assistant

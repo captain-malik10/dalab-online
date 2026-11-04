@@ -15,6 +15,12 @@ export class AIError extends Error {
 
 export const isAIConfigured = () => Boolean(process.env.AI_API_KEY);
 
+export const getModel = () => process.env.AI_MODEL || DEFAULT_MODEL;
+
+// Last failure, exposed (without secrets) by GET /api/ai/status for troubleshooting.
+let lastError = null;
+export const getLastAIError = () => lastError;
+
 /**
  * Generate text with Gemini.
  * @param {string} systemPrompt - system instruction
@@ -22,12 +28,23 @@ export const isAIConfigured = () => Boolean(process.env.AI_API_KEY);
  * @param {{json?: boolean, maxOutputTokens?: number}} [options]
  * @returns {Promise<string>} the model's text
  */
-export async function generateText(systemPrompt, messages, { json = false, maxOutputTokens = 800 } = {}) {
+export async function generateText(systemPrompt, messages, options = {}) {
+  try {
+    const text = await requestGemini(systemPrompt, messages, options);
+    lastError = null;
+    return text;
+  } catch (err) {
+    lastError = { message: err.message, at: new Date().toISOString() };
+    throw err;
+  }
+}
+
+async function requestGemini(systemPrompt, messages, { json = false, maxOutputTokens = 800 } = {}) {
   if (!isAIConfigured()) {
     throw new AIError('AI is not configured (AI_API_KEY is missing).');
   }
 
-  const model = process.env.AI_MODEL || DEFAULT_MODEL;
+  const model = getModel();
   const url = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent`;
 
   const body = {
