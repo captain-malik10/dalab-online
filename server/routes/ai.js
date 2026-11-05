@@ -4,6 +4,8 @@ import { authenticateAny } from '../middleware/auth.js';
 import { generateText, isAIConfigured, getModel, getLastAIError } from '../ai.js';
 import {
   SHOPPING_ASSISTANT_PROMPT,
+  LANGUAGE_INSTRUCTION_EN,
+  LANGUAGE_INSTRUCTION_SO,
   PRODUCT_DESCRIPTION_PROMPT,
   PRODUCT_DESCRIPTION_USER_TEMPLATE,
   REVIEW_SUMMARY_PROMPT,
@@ -60,11 +62,17 @@ const loadCatalog = async () => {
      LIMIT ?`,
     [MAX_CATALOG],
   );
-  return rows.map((p) => ({ ...p, price: Number(p.price), image_urls: parseImageUrls(p.image_urls) }));
+  return rows.map((p) => ({
+    ...p,
+    price: Number(p.price),
+    image_urls: parseImageUrls(p.image_urls),
+  }));
 };
 
 const shortText = (text, max = 140) => {
-  const clean = String(text || '').replace(/\s+/g, ' ').trim();
+  const clean = String(text || '')
+    .replace(/\s+/g, ' ')
+    .trim();
   return clean.length > max ? `${clean.slice(0, max - 1)}…` : clean;
 };
 
@@ -93,14 +101,31 @@ const SOMALI_HINTS =
   /\b(ka|iyo|waxaan|rabaa|doonayaa|iga|ii|ma|fadlan|telefoon|taleefan|qiimo|jaban|raqiis|sidee|imisa|haa|maya|waa|iibso|hadiyad|dharka|kabo|gaari|guri|jikada)\b/i;
 
 const SYNONYMS = {
-  telefoon: 'phone smartphone', taleefan: 'phone smartphone', mobile: 'phone smartphone',
-  phones: 'phone smartphone', laptop: 'laptop computer', kombiyuutar: 'laptop computer',
-  dhar: 'fashion suit blazer outfit', dharka: 'fashion suit blazer outfit', kabo: 'sneakers shoes',
-  shoes: 'sneakers shoes', hadiyad: 'gift box set', gift: 'gift box set', gifts: 'gift box set',
-  jikada: 'kitchen cookware kettle', kitchen: 'kitchen cookware kettle', guri: 'home kitchen fridge',
-  qurux: 'beauty skincare foundation toner', beauty: 'beauty skincare foundation toner',
-  skincare: 'skincare toner foundation', koronto: 'solar power bank', power: 'power bank solar',
-  kubad: 'football', ball: 'football', headphones: 'headphones earbuds', music: 'headphones earbuds',
+  telefoon: 'phone smartphone',
+  taleefan: 'phone smartphone',
+  mobile: 'phone smartphone',
+  phones: 'phone smartphone',
+  laptop: 'laptop computer',
+  kombiyuutar: 'laptop computer',
+  dhar: 'fashion suit blazer outfit',
+  dharka: 'fashion suit blazer outfit',
+  kabo: 'sneakers shoes',
+  shoes: 'sneakers shoes',
+  hadiyad: 'gift box set',
+  gift: 'gift box set',
+  gifts: 'gift box set',
+  jikada: 'kitchen cookware kettle',
+  kitchen: 'kitchen cookware kettle',
+  guri: 'home kitchen fridge',
+  qurux: 'beauty skincare foundation toner',
+  beauty: 'beauty skincare foundation toner',
+  skincare: 'skincare toner foundation',
+  koronto: 'solar power bank',
+  power: 'power bank solar',
+  kubad: 'football',
+  ball: 'football',
+  headphones: 'headphones earbuds',
+  music: 'headphones earbuds',
 };
 
 const STOP_WORDS = new Set(
@@ -111,14 +136,19 @@ const STOP_WORDS = new Set(
 
 const parseBudget = (text) => {
   const match =
-    text.match(/(?:under|below|less than|max(?:imum)?|up to|ka yar|ka hooseeya|ilaa)\s*\$?\s*(\d+(?:\.\d+)?)/i) ||
+    text.match(
+      /(?:under|below|less than|max(?:imum)?|up to|ka yar|ka hooseeya|ilaa)\s*\$?\s*(\d+(?:\.\d+)?)/i,
+    ) ||
     text.match(/\$\s*(\d+(?:\.\d+)?)/) ||
     text.match(/(\d+(?:\.\d+)?)\s*(?:\$|usd|dollar|doolar)/i);
   return match ? Number(match[1]) : null;
 };
 
+// Somali if the message contains common Somali words, otherwise English.
+const isSomali = (text) => SOMALI_HINTS.test(text);
+
 const keywordFallback = (message, catalog) => {
-  const somali = SOMALI_HINTS.test(message);
+  const somali = isSomali(message);
   const lower = message.toLowerCase();
 
   if (/deliver|delivery|geyn|keen|shipping|payment|pay|evc|edahab|lacag|bixi/.test(lower)) {
@@ -140,7 +170,8 @@ const keywordFallback = (message, catalog) => {
   const scored = catalog
     .filter((p) => p.stock > 0 && (budget == null || p.price <= budget))
     .map((p) => {
-      const haystack = `${p.name} ${p.category_name} ${p.vendor_name} ${p.description}`.toLowerCase();
+      const haystack =
+        `${p.name} ${p.category_name} ${p.vendor_name} ${p.description}`.toLowerCase();
       const score = words.reduce((s, w) => s + (haystack.includes(w.replace(/s$/, '')) ? 1 : 0), 0);
       return { p, score };
     })
@@ -180,14 +211,19 @@ router.post('/chat', chatLimiter, async (req, res) => {
   const messages = raw
     .filter((m) => m && typeof m.content === 'string' && m.content.trim())
     .slice(-MAX_HISTORY)
-    .map((m) => ({ role: m.role === 'assistant' ? 'assistant' : 'user', content: m.content.trim() }));
+    .map((m) => ({
+      role: m.role === 'assistant' ? 'assistant' : 'user',
+      content: m.content.trim(),
+    }));
 
   const latest = messages[messages.length - 1];
   if (!latest || latest.role !== 'user') {
     return res.status(400).json({ error: 'Please send a message.' });
   }
   if (messages.some((m) => m.content.length > MAX_MESSAGE_CHARS)) {
-    return res.status(400).json({ error: `Messages can be at most ${MAX_MESSAGE_CHARS} characters.` });
+    return res
+      .status(400)
+      .json({ error: `Messages can be at most ${MAX_MESSAGE_CHARS} characters.` });
   }
   // Gemini conversations must start with a user turn
   while (messages.length && messages[0].role !== 'user') messages.shift();
@@ -203,8 +239,26 @@ router.post('/chat', chatLimiter, async (req, res) => {
 
   if (isAIConfigured()) {
     try {
-      const systemPrompt = fillTemplate(SHOPPING_ASSISTANT_PROMPT, { CATALOG: catalogLines(catalog) });
-      const text = await generateText(systemPrompt, messages, { json: true, maxOutputTokens: 700 });
+      const languageLine = isSomali(latest.content)
+        ? LANGUAGE_INSTRUCTION_SO
+        : LANGUAGE_INSTRUCTION_EN;
+      const systemPrompt = `${fillTemplate(SHOPPING_ASSISTANT_PROMPT, { CATALOG: catalogLines(catalog) })}
+
+${languageLine}`;
+      const aiMessages = messages.map((m, i) =>
+        i === messages.length - 1
+          ? {
+              ...m,
+              content: `${m.content}
+
+(${languageLine})`,
+            }
+          : m,
+      );
+      const text = await generateText(systemPrompt, aiMessages, {
+        json: true,
+        maxOutputTokens: 700,
+      });
 
       let parsed;
       try {
@@ -245,10 +299,16 @@ router.post('/chat', chatLimiter, async (req, res) => {
 // POST /api/ai/description — "Generate with AI" in the seller product form
 // ---------------------------------------------------------------------------
 router.post('/description', authenticateAny, toolLimiter, async (req, res) => {
-  const name = String(req.body?.name || '').trim().slice(0, 200);
-  const category = String(req.body?.category || '').trim().slice(0, 100);
+  const name = String(req.body?.name || '')
+    .trim()
+    .slice(0, 200);
+  const category = String(req.body?.category || '')
+    .trim()
+    .slice(0, 100);
   const price = Number(req.body?.price);
-  const notes = String(req.body?.notes || '').trim().slice(0, 500);
+  const notes = String(req.body?.notes || '')
+    .trim()
+    .slice(0, 500);
 
   if (!name) {
     return res.status(400).json({ error: 'Enter a product name first.' });
@@ -267,7 +327,10 @@ router.post('/description', authenticateAny, toolLimiter, async (req, res) => {
         [{ role: 'user', content: userMessage }],
         { maxOutputTokens: 300 },
       );
-      return res.json({ description: description.replace(/^["']|["']$/g, '').trim(), source: 'ai' });
+      return res.json({
+        description: description.replace(/^["']|["']$/g, '').trim(),
+        source: 'ai',
+      });
     } catch (err) {
       console.error('AI description failed, using template:', err.message);
     }
@@ -310,9 +373,13 @@ router.get('/review-summary/:productId', toolLimiter, async (req, res) => {
       PRODUCT: product.name,
       REVIEWS: reviews.map((r) => `- ${r.rating}/5: ${shortText(r.comment, 300)}`).join('\n'),
     });
-    const summary = await generateText(REVIEW_SUMMARY_PROMPT, [{ role: 'user', content: userMessage }], {
-      maxOutputTokens: 200,
-    });
+    const summary = await generateText(
+      REVIEW_SUMMARY_PROMPT,
+      [{ role: 'user', content: userMessage }],
+      {
+        maxOutputTokens: 200,
+      },
+    );
     summaryCache.set(productId, { reviewCount: reviews.length, summary });
     res.json({ summary, reviewCount: reviews.length });
   } catch (err) {

@@ -26,6 +26,12 @@ Answer ONLY with a JSON object in this exact shape:
 CATALOG:
 {{CATALOG}}`;
 
+// The server detects the language of the customer's latest message (Somali keywords
+// such as "ka yar", "waxaan", "telefoon", "ma", "fadlan"; otherwise English) and adds
+// the matching line below to the end of the system prompt AND to the latest message.
+export const LANGUAGE_INSTRUCTION_EN = 'Reply ONLY in English.';
+export const LANGUAGE_INSTRUCTION_SO = 'Reply ONLY in Somali.';
+
 // ---------------------------------------------------------------------------
 // 2. AI product description generator (POST /api/ai/description)
 // ---------------------------------------------------------------------------

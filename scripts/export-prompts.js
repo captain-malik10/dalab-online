@@ -32,6 +32,15 @@ This file is generated from \`server/ai-prompts.js\` with \`npm run docs:prompts
 
 ${block(prompts.SHOPPING_ASSISTANT_PROMPT)}
 
+**Language line** — the server detects the language of the customer's latest message
+(Somali if it contains common Somali words such as "ka yar", "waxaan", "telefoon", "ma",
+"fadlan"; otherwise English) and appends one of these lines to the end of the system prompt and,
+in brackets, to the customer's latest message:
+
+${block(prompts.LANGUAGE_INSTRUCTION_EN)}
+
+${block(prompts.LANGUAGE_INSTRUCTION_SO)}
+
 ## 2. AI product description generator
 
 **Endpoint:** \`POST /api/ai/description\` · **Used by:** the "✨ Generate with AI" button in the seller

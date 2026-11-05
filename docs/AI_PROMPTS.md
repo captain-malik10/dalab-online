@@ -41,6 +41,19 @@ CATALOG:
 {{CATALOG}}
 ```
 
+**Language line** — the server detects the language of the customer's latest message
+(Somali if it contains common Somali words such as "ka yar", "waxaan", "telefoon", "ma",
+"fadlan"; otherwise English) and appends one of these lines to the end of the system prompt and,
+in brackets, to the customer's latest message:
+
+```text
+Reply ONLY in English.
+```
+
+```text
+Reply ONLY in Somali.
+```
+
 ## 2. AI product description generator
 
 **Endpoint:** `POST /api/ai/description` · **Used by:** the "✨ Generate with AI" button in the seller
