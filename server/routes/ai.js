@@ -1,7 +1,7 @@
 import express from 'express';
 import db from '../config/db.js';
 import { authenticateAny } from '../middleware/auth.js';
-import { generateText, isAIConfigured, getModel, getLastAIError } from '../ai.js';
+import { generateText, isAIConfigured, getModel, getLastAIError, getLastAISuccess } from '../ai.js';
 import {
   SHOPPING_ASSISTANT_PROMPT,
   LANGUAGE_INSTRUCTION_EN,
@@ -200,7 +200,12 @@ const keywordFallback = (message, catalog) => {
 // GET /api/ai/status — is AI configured, which model, last error (no secrets)
 // ---------------------------------------------------------------------------
 router.get('/status', (req, res) => {
-  res.json({ configured: isAIConfigured(), model: getModel(), lastError: getLastAIError() });
+  res.json({
+    configured: isAIConfigured(),
+    model: getModel(),
+    lastSuccessAt: getLastAISuccess(),
+    lastError: getLastAIError(),
+  });
 });
 
 // ---------------------------------------------------------------------------

@@ -17,9 +17,15 @@ export const isAIConfigured = () => Boolean(process.env.AI_API_KEY);
 
 export const getModel = () => process.env.AI_MODEL || DEFAULT_MODEL;
 
-// Last failure, exposed (without secrets) by GET /api/ai/status for troubleshooting.
+// Last failure and last success, exposed (without secrets) by GET /api/ai/status.
 let lastError = null;
+let lastSuccessAt = null;
 export const getLastAIError = () => lastError;
+export const getLastAISuccess = () => lastSuccessAt;
+
+// Gemini returns 429/500/503 when overloaded ("high demand"); those are worth one retry.
+const RETRYABLE_STATUS = new Set([429, 500, 503]);
+const RETRY_DELAY_MS = 1200;
 
 /**
  * Generate text with Gemini.
@@ -29,13 +35,16 @@ export const getLastAIError = () => lastError;
  * @returns {Promise<string>} the model's text
  */
 export async function generateText(systemPrompt, messages, options = {}) {
-  try {
-    const text = await requestGemini(systemPrompt, messages, options);
-    lastError = null;
-    return text;
-  } catch (err) {
-    lastError = { message: err.message, at: new Date().toISOString() };
-    throw err;
+  for (let attempt = 1; ; attempt++) {
+    try {
+      const text = await requestGemini(systemPrompt, messages, options);
+      lastSuccessAt = new Date().toISOString();
+      return text;
+    } catch (err) {
+      lastError = { message: err.message, status: err.status, at: new Date().toISOString() };
+      if (attempt >= 2 || !RETRYABLE_STATUS.has(err.status)) throw err;
+      await new Promise((resolve) => setTimeout(resolve, RETRY_DELAY_MS));
+    }
   }
 }
 
