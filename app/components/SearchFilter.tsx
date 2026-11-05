@@ -46,6 +46,11 @@ const SearchFilter: React.FC<SearchFilterProps> = ({ onFiltersChange, initialCat
   const [maxPrice, setMaxPrice] = useState<string>('');
   const [featuredOnly, setFeaturedOnly] = useState<boolean>(false);
 
+  // Follow the URL when the category changes from outside (header, footer, back button)
+  React.useEffect(() => {
+    setSelectedCategory(initialCategory || '');
+  }, [initialCategory]);
+
   // Notify parent component when filters change
   React.useEffect(() => {
     if (onFiltersChange) {

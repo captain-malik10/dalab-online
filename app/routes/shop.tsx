@@ -1,5 +1,6 @@
 import React, { useState, useMemo, useCallback, useEffect } from 'react';
-import { useLocation } from 'react-router';
+import { useLocation, useNavigate } from 'react-router';
+import Footer from '~/components/Footer';
 import Header from '~/components/Header';
 import SearchFilter from '../components/SearchFilter';
 import ProductCard from '~/components/ProductCard';
@@ -11,7 +12,10 @@ import AuthMessage from '../components/AuthMessage';
 
 export default function ShopPage() {
   const location = useLocation();
+  const navigate = useNavigate();
   const searchParams = new URLSearchParams(location.search);
+  // The URL is the source of truth for the category, so header/footer links to
+  // /shop?category=X update the page even though the shop route stays mounted.
   const initialCategory = searchParams.get('category') || '';
   const searchQuery = (searchParams.get('q') || '').trim().toLowerCase();
 
@@ -31,8 +35,8 @@ export default function ShopPage() {
   const apiFilters = useMemo(() => {
     const apiFilters: any = {};
 
-    if (filters.categories) {
-      apiFilters.categoryName = filters.categories;
+    if (initialCategory) {
+      apiFilters.categoryName = initialCategory;
     }
 
     if (filters.vendors.length > 0) {
@@ -52,7 +56,7 @@ export default function ShopPage() {
     }
 
     return apiFilters;
-  }, [filters]);
+  }, [filters, initialCategory]);
 
   const { products, loading, error } = useProducts(apiFilters);
 
@@ -100,6 +104,10 @@ export default function ShopPage() {
 
   const totalPages = Math.ceil(sortedProducts.length / itemsPerPage);
 
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [initialCategory, searchQuery]);
+
   const handleLayoutChange = (layout: 'grid' | 'list') => {
     setViewLayout(layout);
   };
@@ -110,9 +118,16 @@ export default function ShopPage() {
   };
 
   const handleFiltersChange = useCallback((newFilters: typeof filters) => {
+    const params = new URLSearchParams(window.location.search);
+    if ((params.get('category') || '') !== (newFilters.categories || '')) {
+      if (newFilters.categories) params.set('category', newFilters.categories);
+      else params.delete('category');
+      const qs = params.toString();
+      navigate(qs ? `/shop?${qs}` : '/shop');
+    }
     setFilters(newFilters);
     setCurrentPage(1); // Reset to first page when filters change
-  }, []);
+  }, [navigate]);
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
@@ -141,7 +156,7 @@ export default function ShopPage() {
                 onLayoutChange={handleLayoutChange}
                 onSortChange={handleSortChange}
                 itemCount={sortedProducts.length}
-                category={filters.categories}
+                category={initialCategory}
                 brand={filters.vendors[0]}
                 loading={loading}
               />
@@ -200,6 +215,7 @@ export default function ShopPage() {
           </div>
         </div>
       </div>
+      <Footer />
     </div>
   );
 }
