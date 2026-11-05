@@ -2,6 +2,8 @@
 // Swap providers by changing this file; callers only use generateText().
 
 const DEFAULT_MODEL = 'gemini-3.5-flash-lite';
+// Used for the retry when the main model is overloaded.
+const DEFAULT_FALLBACK_MODEL = 'gemini-3.1-flash-lite';
 const TIMEOUT_MS = 20_000;
 
 export class AIError extends Error {
@@ -16,6 +18,7 @@ export class AIError extends Error {
 export const isAIConfigured = () => Boolean(process.env.AI_API_KEY);
 
 export const getModel = () => process.env.AI_MODEL || DEFAULT_MODEL;
+export const getFallbackModel = () => process.env.AI_FALLBACK_MODEL || DEFAULT_FALLBACK_MODEL;
 
 // Last failure and last success, exposed (without secrets) by GET /api/ai/status.
 let lastError = null;
@@ -23,7 +26,8 @@ let lastSuccessAt = null;
 export const getLastAIError = () => lastError;
 export const getLastAISuccess = () => lastSuccessAt;
 
-// Gemini returns 429/500/503 when overloaded ("high demand"); those are worth one retry.
+// Gemini returns 429/500/503 when overloaded ("high demand"); those get one retry,
+// on the fallback model so a busy main model doesn't block the answer.
 const RETRYABLE_STATUS = new Set([429, 500, 503]);
 const RETRY_DELAY_MS = 1200;
 
@@ -37,7 +41,8 @@ const RETRY_DELAY_MS = 1200;
 export async function generateText(systemPrompt, messages, options = {}) {
   for (let attempt = 1; ; attempt++) {
     try {
-      const text = await requestGemini(systemPrompt, messages, options);
+      const model = attempt === 1 ? getModel() : getFallbackModel();
+      const text = await requestGemini(model, systemPrompt, messages, options);
       lastSuccessAt = new Date().toISOString();
       return text;
     } catch (err) {
@@ -48,12 +53,16 @@ export async function generateText(systemPrompt, messages, options = {}) {
   }
 }
 
-async function requestGemini(systemPrompt, messages, { json = false, maxOutputTokens = 800 } = {}) {
+async function requestGemini(
+  model,
+  systemPrompt,
+  messages,
+  { json = false, maxOutputTokens = 800 } = {},
+) {
   if (!isAIConfigured()) {
     throw new AIError('AI is not configured (AI_API_KEY is missing).');
   }
 
-  const model = getModel();
   const url = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent`;
 
   const body = {
@@ -107,9 +116,14 @@ async function requestGemini(systemPrompt, messages, { json = false, maxOutputTo
   }
 
   const candidate = data.candidates?.[0];
-  const text = candidate?.content?.parts?.map((p) => p.text || '').join('').trim();
+  const text = candidate?.content?.parts
+    ?.map((p) => p.text || '')
+    .join('')
+    .trim();
   if (!text) {
-    throw new AIError(`AI returned no text (finish reason: ${candidate?.finishReason || 'unknown'}).`);
+    throw new AIError(
+      `AI returned no text (finish reason: ${candidate?.finishReason || 'unknown'}).`,
+    );
   }
   return text;
 }

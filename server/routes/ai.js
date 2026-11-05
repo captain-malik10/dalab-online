@@ -1,7 +1,14 @@
 import express from 'express';
 import db from '../config/db.js';
 import { authenticateAny } from '../middleware/auth.js';
-import { generateText, isAIConfigured, getModel, getLastAIError, getLastAISuccess } from '../ai.js';
+import {
+  generateText,
+  isAIConfigured,
+  getModel,
+  getFallbackModel,
+  getLastAIError,
+  getLastAISuccess,
+} from '../ai.js';
 import {
   SHOPPING_ASSISTANT_PROMPT,
   LANGUAGE_INSTRUCTION_EN,
@@ -196,6 +203,37 @@ const keywordFallback = (message, catalog) => {
   return { reply, products };
 };
 
+// The model is asked for {"reply": ..., "productIds": [...]}. Be tolerant of code fences,
+// extra text around the object, and replies cut off by the token limit.
+export const parseAssistantJson = (text) => {
+  const cleaned = text.replace(/^```(?:json)?\s*|\s*```$/g, '').trim();
+  const object = cleaned.match(/\{[\s\S]*\}/)?.[0];
+  for (const candidate of [cleaned, object]) {
+    if (!candidate) continue;
+    try {
+      const parsed = JSON.parse(candidate);
+      if (parsed && typeof parsed.reply === 'string') return parsed;
+    } catch {
+      // try the next candidate
+    }
+  }
+  // Truncated JSON: recover the reply text and any product ids that made it through
+  const replyMatch = cleaned.match(/"reply"\s*:\s*"((?:[^"\\]|\\.)*)/);
+  if (replyMatch) {
+    let reply;
+    try {
+      reply = JSON.parse(`"${replyMatch[1].replace(/\\$/, '')}"`);
+    } catch {
+      reply = replyMatch[1].replace(/\\n/g, '\n').replace(/\\"/g, '"');
+    }
+    const idsMatch = cleaned.match(/"productIds"\s*:\s*\[([^\]]*)/);
+    const productIds = idsMatch ? (idsMatch[1].match(/\d+/g) || []).map(Number) : [];
+    return { reply: reply.trim(), productIds };
+  }
+  // Plain text is fine; a broken JSON object is not shown to the customer
+  return { reply: cleaned.startsWith('{') ? '' : cleaned, productIds: [] };
+};
+
 // ---------------------------------------------------------------------------
 // GET /api/ai/status — is AI configured, which model, last error (no secrets)
 // ---------------------------------------------------------------------------
@@ -203,6 +241,7 @@ router.get('/status', (req, res) => {
   res.json({
     configured: isAIConfigured(),
     model: getModel(),
+    fallbackModel: getFallbackModel(),
     lastSuccessAt: getLastAISuccess(),
     lastError: getLastAIError(),
   });
@@ -262,15 +301,10 @@ ${languageLine}`;
       );
       const text = await generateText(systemPrompt, aiMessages, {
         json: true,
-        maxOutputTokens: 700,
+        maxOutputTokens: 1200,
       });
 
-      let parsed;
-      try {
-        parsed = JSON.parse(text.replace(/^```(?:json)?\s*|\s*```$/g, ''));
-      } catch {
-        parsed = { reply: text, productIds: [] };
-      }
+      const parsed = parseAssistantJson(text);
       const reply = String(parsed.reply || '').trim();
       const idsFromJson = Array.isArray(parsed.productIds) ? parsed.productIds : [];
       const idsFromText = [...reply.matchAll(/\[#(\d+)\]/g)].map((m) => m[1]);

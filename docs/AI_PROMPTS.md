@@ -5,6 +5,8 @@ This file is generated from `server/ai-prompts.js` with `npm run docs:prompts`.
 
 - **Provider:** Google Gemini API (`generateContent`, REST, called with `fetch` in `server/ai.js`)
 - **Model:** value of the `AI_MODEL` env variable (default `gemini-3.5-flash-lite`)
+- **Fallback model:** if the main model is overloaded (HTTP 429/500/503), the request is retried once on
+  `AI_FALLBACK_MODEL` (default `gemini-3.1-flash-lite`) with the same prompt
 - **Timeout:** 20 seconds per request
 - **Placeholders** in `{{DOUBLE_BRACES}}` are filled by the server before sending.
 
@@ -15,7 +17,7 @@ This file is generated from `server/ai-prompts.js` with `npm run docs:prompts`.
 - **System prompt:** the text below, with `{{CATALOG}}` replaced by up to 150 products, one per line:
   `#<id> | <name> | $<price> | <category> | <store> | stock <n> | <short description>`
 - **Messages:** the last 10 chat messages (customer = `user`, assistant = `model`), max 500 characters each.
-- **Output:** JSON (`responseMimeType: application/json`), max 700 tokens. The server keeps only product ids
+- **Output:** JSON (`responseMimeType: application/json`), max 1200 tokens. The server keeps only product ids
   that exist in the catalog (max 4) and also reads ids written as `[#id]` in the reply.
 - **Safeguards:** 20 requests per IP per 10 minutes. If the AI key is missing or the call fails,
   a keyword search over the catalog answers instead (no prompt involved).
