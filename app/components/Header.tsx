@@ -202,7 +202,7 @@ const Header: React.FC<HeaderProps> = ({ breadcrumbs }) => {
       <div className="mx-auto flex max-w-7xl items-center gap-3 px-4 py-3 md:gap-6">
         <button
           type="button"
-          className="-ml-1 rounded-lg p-2 text-[var(--color-dark)] hover:bg-gray-100 md:hidden"
+          className="-ml-1 flex h-11 w-11 items-center justify-center rounded-lg text-[var(--color-dark)] hover:bg-gray-100 md:hidden"
           onClick={() => setMenuOpen(true)}
           aria-label="Open menu"
         >
@@ -313,7 +313,7 @@ const Header: React.FC<HeaderProps> = ({ breadcrumbs }) => {
               <button
                 type="button"
                 onClick={() => setMenuOpen(false)}
-                className="rounded-lg p-2 hover:bg-gray-100"
+                className="flex h-11 w-11 items-center justify-center rounded-lg hover:bg-gray-100"
                 aria-label="Close menu"
               >
                 <X size={22} />

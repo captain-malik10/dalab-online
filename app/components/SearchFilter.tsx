@@ -65,7 +65,7 @@ const SearchFilter: React.FC<SearchFilterProps> = ({ onFiltersChange, initialCat
   }, [selectedCategory, selectedVendor, minPrice, maxPrice, featuredOnly, onFiltersChange]);
 
   return (
-    <aside className="w-64 bg-white p-4 rounded shadow-md">
+    <aside className="w-full bg-white md:w-64 md:rounded-2xl md:border md:border-[var(--color-border)] md:p-4">
       <h2 className="text-lg font-bold mb-4 text-gray-900">Search Filters</h2>
 
       <Section title="Categories">

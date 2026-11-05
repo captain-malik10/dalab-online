@@ -9,6 +9,7 @@ import MiniShopFooter from '~/components/MiniShopFooter';
 import { useProducts } from '~/hooks/useProducts';
 import type { Product } from '~/types';
 import AuthMessage from '../components/AuthMessage';
+import { SlidersHorizontal, X } from 'lucide-react';
 
 export default function ShopPage() {
   const location = useLocation();
@@ -20,6 +21,8 @@ export default function ShopPage() {
   const searchQuery = (searchParams.get('q') || '').trim().toLowerCase();
 
   const [viewLayout, setViewLayout] = useState<'grid' | 'list'>('grid');
+  // Below md the filters live in a drawer opened by the "Filters" button
+  const [filtersOpen, setFiltersOpen] = useState(false);
   const [sortOrder, setSortOrder] = useState<string>('Characteristics');
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(12);
@@ -106,6 +109,7 @@ export default function ShopPage() {
 
   useEffect(() => {
     setCurrentPage(1);
+    setFiltersOpen(false);
   }, [initialCategory, searchQuery]);
 
   const handleLayoutChange = (layout: 'grid' | 'list') => {
@@ -117,17 +121,20 @@ export default function ShopPage() {
     setCurrentPage(1); // Reset to first page when sorting changes
   };
 
-  const handleFiltersChange = useCallback((newFilters: typeof filters) => {
-    const params = new URLSearchParams(window.location.search);
-    if ((params.get('category') || '') !== (newFilters.categories || '')) {
-      if (newFilters.categories) params.set('category', newFilters.categories);
-      else params.delete('category');
-      const qs = params.toString();
-      navigate(qs ? `/shop?${qs}` : '/shop');
-    }
-    setFilters(newFilters);
-    setCurrentPage(1); // Reset to first page when filters change
-  }, [navigate]);
+  const handleFiltersChange = useCallback(
+    (newFilters: typeof filters) => {
+      const params = new URLSearchParams(window.location.search);
+      if ((params.get('category') || '') !== (newFilters.categories || '')) {
+        if (newFilters.categories) params.set('category', newFilters.categories);
+        else params.delete('category');
+        const qs = params.toString();
+        navigate(qs ? `/shop?${qs}` : '/shop');
+      }
+      setFilters(newFilters);
+      setCurrentPage(1); // Reset to first page when filters change
+    },
+    [navigate],
+  );
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
@@ -144,12 +151,59 @@ export default function ShopPage() {
       <div className="p-4">
         <div className="mx-auto max-w-7xl">
           <div className="flex flex-col gap-4 md:flex-row md:items-start">
-            <aside className="md:w-64 md:sticky md:top-0 md:self-start">
-              <SearchFilter
-                onFiltersChange={handleFiltersChange}
-                initialCategory={initialCategory}
+            <button
+              type="button"
+              onClick={() => setFiltersOpen(true)}
+              className="flex items-center justify-center gap-2 rounded-xl border border-[var(--color-border)] bg-white px-4 py-3 text-sm font-bold text-[var(--color-dark)] md:hidden"
+            >
+              <SlidersHorizontal size={18} className="text-[#4189DD]" />
+              Filters
+              {initialCategory && (
+                <span className="rounded-full bg-blue-50 px-2 py-0.5 text-xs text-[#255FA6]">
+                  {initialCategory}
+                </span>
+              )}
+            </button>
+
+            {/* One SearchFilter instance: a drawer on phones, a sticky sidebar from md up */}
+            <div
+              className={`${filtersOpen ? 'fixed inset-0 z-50 flex' : 'hidden'} md:z-auto md:block md:w-64 md:shrink-0 md:self-start md:sticky md:top-40`}
+              role={filtersOpen ? 'dialog' : undefined}
+              aria-label={filtersOpen ? 'Filters' : undefined}
+            >
+              <div
+                className="absolute inset-0 bg-[#0B1F3A]/50 md:hidden"
+                onClick={() => setFiltersOpen(false)}
               />
-            </aside>
+              <div className="relative ml-auto flex h-full w-80 max-w-[85%] flex-col overflow-y-auto bg-white md:ml-0 md:h-auto md:w-auto md:max-w-none md:overflow-visible md:bg-transparent">
+                <div className="flex items-center justify-between border-b border-[var(--color-border)] p-4 md:hidden">
+                  <p className="text-lg font-bold">Filters</p>
+                  <button
+                    type="button"
+                    onClick={() => setFiltersOpen(false)}
+                    className="flex h-11 w-11 items-center justify-center rounded-lg hover:bg-gray-100"
+                    aria-label="Close filters"
+                  >
+                    <X size={22} />
+                  </button>
+                </div>
+                <div className="p-4 md:p-0">
+                  <SearchFilter
+                    onFiltersChange={handleFiltersChange}
+                    initialCategory={initialCategory}
+                  />
+                </div>
+                <div className="sticky bottom-0 mt-auto border-t border-[var(--color-border)] bg-white p-4 md:hidden">
+                  <button
+                    type="button"
+                    onClick={() => setFiltersOpen(false)}
+                    className="w-full rounded-xl bg-[#4189DD] py-3 font-bold text-white hover:bg-[#2F74C8]"
+                  >
+                    Show {sortedProducts.length} products
+                  </button>
+                </div>
+              </div>
+            </div>
 
             <main className="flex-1">
               <MiniShopHeader

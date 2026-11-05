@@ -240,10 +240,10 @@ export default function ChatAssistant() {
             <button
               type="button"
               onClick={() => setOpen(false)}
-              className="rounded-lg p-1 hover:bg-white/15"
+              className="flex h-11 w-11 items-center justify-center rounded-lg hover:bg-white/15"
               aria-label="Close chat"
             >
-              <X size={20} />
+              <X size={22} />
             </button>
           </div>
 
